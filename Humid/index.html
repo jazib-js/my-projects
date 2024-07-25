@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <title>Practice</title>
+    <script src="https://kit.fontawesome.com/99c859830a.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div>
+
+        <div id="navBar">
+        <div id="humid"> Humid</div>
+        <div id="inputDiv"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i><input id="cityInput" type="text>"></div> 
+        <button class="boton-elegante" onclick="getInfo()" id="searchBtn">Search</button>
+        <div id="name"><a class="sliding-middle-out"  href="https://jazibgillani-portfolio.netlify.app/">Made by Jazib Gillani<br> Visit my website</a></div>
+        </div>
+        <h2 id="cityName"></h2>
+        <script src="script.js"></script>
+    </div>
+
+
+    <div id="todayWeather">
+
+        <div class="today Temp">
+
+            <div id="sub">
+                <img src="" id="mainImage">
+
+                <p id="mainTemp"></p>
+                <p id="mainWeather"></p>
+                <p id="location"></p>
+                <p id="dateToday"></p>
+
+            </div>
+        </div>
+        <div class="today Pressure">
+            <p id="p">Pressure</p>
+            <img src="barometer.png" id="mistImg">
+            <p id="pressure"></p>
+
+
+
+        </div>
+        <div class="today Humidity">
+            <p id="h">Humidity</p>
+            <img src="humidity.png" id="mistImg">
+            <p id="humidity"></p>
+
+
+        </div>
+        <div class="today Description">
+            <p id="d">Description</p>
+
+            <p id="description"></p>
+
+        </div>
+        <div class="today Hourly">
+            Hourly
+            <div class="h1"></div>
+            <div class="h2"></div>
+            <div class="h3"></div>
+            <div class="h4"></div>
+
+        </div>
+        <div class="today Visibility">
+            <p id="v">Visibility</p>
+            <img src="mist.png" id="mistvImg">
+            <p id="visibility"></p>
+
+        </div>
+        <div class="today Feelslike">
+            <p id="f">Feels Like</p>
+            <img src="thermometer.png" id="mistvImg">
+            <p id="feelsLike"></p>
+        </div>
+        <div class="today Windspeed">
+            <p id="w">Windspeed</p>
+            <img src="windsock.png" id="mistvImg">
+            <p id="windspeed"></p>
+        </div>
+
+    </div>
+    <div id="mainContainer">
+
+        <div class="icons">
+            <p class="weather" id="day1"></p>
+            <p id="day1time"></p>
+            <p id="day1date"></p>
+            <div class="image"><img class="imgClass" id="img1" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day1min">Loading...</p>
+            <p class="maxValues" id="day1max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day2"></p>
+            <p id="day2time"></p>
+            <p id="day2date"></p>
+            
+            <div class="image"><img class="imgClass" id="img2" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day2min">Loading...</p>
+            <p class="maxValues" id="day2max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day3"></p>
+            <p id="day3time"></p>
+            <p id="day3date"></p>
+            
+            <div class="image"><img class="imgClass" id="img3" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day3min">Loading...</p>
+            <p class="maxValues" id="day3max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day4"></p>
+            <p id="day4date"></p>
+            <p id="day4time"></p>
+
+            <div class="image"><img class="imgClass" id="img4" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day4min">Loading...</p>
+            <p class="maxValues" id="day4max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day5"></p>
+            <p id="day5date"></p>
+            <p id="day5time"></p>
+
+            <div class="image"><img class="imgClass" id="img5" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day5min">Loading...</p>
+            <p class="maxValues" id="day5max">loading...</p>
+
+        </div>
+
+
+
+        <div class="icons">
+            <p class="weather" id="day6"></p>
+            <p id="day6date"></p>
+            <p id="day6time"></p>
+            <div class="image"><img class="imgClass" id="img6" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day6min">Loading...</p>
+            <p class="maxValues" id="day6max">loading...</p>
+        </div>
+
+        <div class="icons">
+            <p class="weather" id="day7"></p>
+            <p id="day7date"></p>
+            <p id="day7time"></p>
+            <div class="image"><img class="imgClass" id="img7" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day7min">Loading...</p>
+            <p class="maxValues" id="day7max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day8"></p>
+            <p id="day8date"></p>
+            <p id="day8time"></p>
+
+            <div class="image"><img class="imgClass" id="img8" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day8min">Loading...</p>
+            <p class="maxValues" id="day8max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day9"></p>
+            <p id="day9date"></p>
+            <p id="day9time"></p>
+
+            <div class="image"><img class="imgClass" id="img9" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day9min">Loading...</p>
+            <p class="maxValues" id="day9max">loading...</p>
+        </div>
+        <div class="icons">
+            <p class="weather" id="day10"></p>
+            <p id="day10date"></p>
+            <p id="day10time"></p>
+
+            <div class="image"><img class="imgClass" id="img10" src="partly cloudy.svg"></div>
+            <p class="minValues" id="day10min">Loading...</p>
+            <p class="maxValues" id="day10max">loading...</p>
+        </div>
+
+
+
+
+
+    </div>
+
+    0
+    </div>
+</body>
+
+</html>
