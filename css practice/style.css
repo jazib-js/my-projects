@@ -1,0 +1,111 @@
+body {
+  background-color: #FFCDD2;
+}
+
+.centered-box {
+  display: grid;
+  gap: 49px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  height: 100vh;
+}
+
+.heart {
+  font-size: clamp(10px, 2vh, 200px);
+  color: red;
+  animation: beat 4s 3  forwards;
+ animation-fill-mode: forwards;
+  animation-iteration-count: 3;
+}
+
+
+.text{
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  top: 36vh;
+  left: 5vh;
+  display: flex;
+  font-size: 3vh;
+  gap: 10px;
+  color: white;
+}
+.fade-in-i {
+  opacity: 0;
+  animation:  fadeIn 1s ease-in-out 2s;;
+  animation-fill-mode: forwards;
+  
+font-size: 5vh;
+      font-family: playfair display;
+  
+}.fade-in-l {
+  opacity: 0;
+  animation:  fadeIn 2s ease-in-out 3s;;
+  animation-fill-mode: forwards;
+  
+font-size: 5vh;
+      font-family: playfair display;
+  
+}.fade-in-u {
+  opacity: 0;
+  animation:  fadeIn 3s ease-in-out 4s;;
+  animation-fill-mode: forwards;
+  
+font-size: 5vh;
+      font-family: playfair display;
+  
+}
+.fade-in-z {
+  opacity: 0;
+  animation:  fadeIn 4s ease-in-out 5s;;
+  animation-fill-mode: forwards;
+  
+font-size: 5vh;
+      font-family: playfair display;
+  
+}
+
+
+
+
+
+
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+@keyframes beat {
+  0%, 20% {
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+
+
+25% {
+    transform: scale(1);
+    opacity: 1;
+}
+35% {
+    transform: scale(1);
+}
+40% {
+    transform: scale(1.2);
+    opacity: 1;
+}
+50%{
+  transform: scale(1);
+    opacity: 0.5;
+}
+
+100%{
+  opacity: 0;
+}
+}
