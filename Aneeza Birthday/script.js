@@ -10,12 +10,32 @@ const stopsData = [
     hasPlayer: true,
     audioSrc: 'audio/apnaa-mujhe-tu-lagaa.mp3',
     clipStart: 36,
-    clipEnd: 47,
+    clipEnd: 186,
     lyrics: [
-      'Anjaane ho tum, jo begaane ho tum',
-      'Jo pehchaane lagte ho kyun',
-      'Tum gehri neendon me jab soye soye ho',
-      'Toh mujhme jagte ho kyun',
+      { time: 36, text: 'Anjaane ho tum, jo begaane ho tum' },
+      { time: 40, text: 'Jo pehchaane lagte ho kyun' },
+      { time: 44, text: 'Tum gehri neendon mein jab soye soye ho' },
+      { time: 48, text: 'Toh mujhme jagte ho kyun' },
+      { time: 51, text: 'Jab tujhko paata hai dil muskuraata hai' },
+      { time: 54, text: 'Kya tujhse hai waasta' },
+      { time: 57, text: 'Kya tujhme dhoondoon main' },
+      { time: 60, text: 'Kya tujhse chaahoon main' },
+      { time: 63, text: 'Kya hai tujhme mera' },
+      { time: 67, text: 'Jaanoon na main' },
+      { time: 71, text: 'Tujhse mera rishta hai kya' },
+      { time: 74, text: 'Ajnabi apna mujhe tu lagaa' },
+      { time: 112, text: 'Tujhse taalluq jo nahi kuch mera' },
+      { time: 117, text: 'Kyun tu lage hai apna sa' },
+      { time: 123, text: 'Dekhoon jo tujhko ek nazar jaaye bhar' },
+      { time: 129, text: 'Mujhme hai mera, mera jo khaza' },
+      { time: 134, text: 'Zindagi mein khushi tere aane se hai' },
+      { time: 142, text: 'Warna jeene mein gam har bahaane se hai' },
+      { time: 150, text: 'Yeh alag baat hai hum mile aaj hai' },
+      { time: 157, text: 'Dil tujhe jaanta ek zamaane se hai' },
+      { time: 164, text: 'Mil jaaoonga main tujhme' },
+      { time: 167, text: 'Mera hissa hai kya' },
+      { time: 170, text: 'Ajnabi apna mujhe tu lagaa' },
+      { time: 178, text: 'Jaanoon na main tujhse mera rishta hai kya' },
     ],
   } },
   { id: 's2', date: 'The first weeks', note: "I had been fine before you. That was the problem — I had gotten so good at fine. And then you came along and fine stopped being enough.", icon: 'spark', song: null },
@@ -119,9 +139,12 @@ function toggleSong(id, card, trigger) {
   }
 }
 
-// Plays only the [clipStart, clipEnd) window of the track and highlights the
-// lyric line whose share of that window the playhead currently falls in
-// (lines aren't individually timestamped, so the window is split evenly).
+// Plays the [clipStart, clipEnd) window of the track. Each lyric line carries
+// its own timestamp, so the active line is whichever one's time has most
+// recently passed (it stays lit through instrumental gaps until the next
+// line's cue arrives). The active line is kept centered in a fixed-height
+// window by measuring its real offset and sliding the track to match —
+// robust to wrapped/variable-length lines, unlike a fixed per-line height.
 function wirePlayer(card, song) {
   const audio = new Audio(song.audioSrc);
   audio.preload = 'none';
@@ -131,31 +154,49 @@ function wirePlayer(card, song) {
   const playIconWrap = card.querySelector('.play-icon-wrap');
   const pauseIconWrap = card.querySelector('.pause-icon-wrap');
   const label = card.querySelector('.song-play-label');
+  const viewport = card.querySelector('.lyrics-viewport');
+  const track = card.querySelector('.lyrics-track');
   const lyricLines = card.querySelectorAll('.lyric-line');
-  const segment = song.clipEnd - song.clipStart;
-  const perLine = segment / song.lyrics.length;
 
   function setPlayingUI(isPlaying) {
     playIconWrap.hidden = isPlaying;
     pauseIconWrap.hidden = !isPlaying;
-    label.textContent = isPlaying ? 'pause' : 'play clip';
+    label.textContent = isPlaying ? 'pause' : 'play song';
   }
 
-  function clearHighlight() {
+  function activeIndexFor(t) {
+    let idx = -1;
+    for (let i = 0; i < song.lyrics.length; i++) {
+      if (song.lyrics[i].time <= t) idx = i; else break;
+    }
+    return idx;
+  }
+
+  function resetView() {
     lyricLines.forEach((el) => el.classList.remove('active'));
+    track.style.transform = 'translateY(0)';
+  }
+
+  function updateLyrics(t) {
+    const idx = activeIndexFor(t);
+    lyricLines.forEach((el, i) => el.classList.toggle('active', i === idx));
+    if (idx === -1) {
+      track.style.transform = 'translateY(0)';
+      return;
+    }
+    const activeEl = lyricLines[idx];
+    const centerOffset = activeEl.offsetTop - (viewport.clientHeight / 2 - activeEl.offsetHeight / 2);
+    track.style.transform = `translateY(${-centerOffset}px)`;
   }
 
   audio.addEventListener('timeupdate', () => {
     if (audio.currentTime >= song.clipEnd) {
       audio.pause();
       audio.currentTime = song.clipStart;
-      clearHighlight();
+      resetView();
       return;
     }
-    const elapsed = audio.currentTime - song.clipStart;
-    if (elapsed < 0) return;
-    const idx = Math.min(lyricLines.length - 1, Math.floor(elapsed / perLine));
-    lyricLines.forEach((el, i) => el.classList.toggle('active', i === idx));
+    updateLyrics(audio.currentTime);
   });
 
   audio.addEventListener('play', () => setPlayingUI(true));
@@ -165,6 +206,7 @@ function wirePlayer(card, song) {
     if (audio.paused) {
       if (audio.currentTime < song.clipStart || audio.currentTime >= song.clipEnd) {
         audio.currentTime = song.clipStart;
+        resetView();
       }
       audio.play();
     } else {
@@ -236,15 +278,17 @@ function render() {
 
       if (stop.song.hasPlayer) {
         const lyricsHTML = stop.song.lyrics
-          .map((line, i) => `<p class="lyric-line" data-line-index="${i}">${line}</p>`)
+          .map((line, i) => `<p class="lyric-line" data-line-index="${i}">${line.text}</p>`)
           .join('');
         card.innerHTML = `
           <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
-          <div class="lyrics-block">${lyricsHTML}</div>
-          <button type="button" class="song-play-btn" aria-label="Play clip">
+          <div class="lyrics-viewport">
+            <div class="lyrics-track">${lyricsHTML}</div>
+          </div>
+          <button type="button" class="song-play-btn" aria-label="Play song">
             <span class="play-icon-wrap">${PLAY_ICON}</span>
             <span class="pause-icon-wrap" hidden>${PAUSE_ICON}</span>
-            <span class="song-play-label">play clip</span>
+            <span class="song-play-label">play song</span>
           </button>
         `;
         wirePlayer(card, stop.song);

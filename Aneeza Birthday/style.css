@@ -171,8 +171,19 @@ a:hover {
   text-transform: uppercase;
 }
 
-.lyrics-block {
+.lyrics-viewport {
+  position: relative;
+  height: 152px;
+  overflow: hidden;
   margin: 10px 0 18px;
+  mask-image: linear-gradient(to bottom, transparent 0, black 22%, black 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 22%, black 78%, transparent 100%);
+}
+
+.lyrics-track {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .lyric-line {
@@ -181,13 +192,10 @@ a:hover {
   font-size: 16px;
   line-height: 1.6;
   color: oklch(28% 0.035 15);
-  opacity: 0.55;
-  margin: 6px 0 0;
-  transition: opacity 0.3s ease;
-}
-
-.lyric-line:first-child {
-  margin-top: 0;
+  opacity: 0.25;
+  margin: 0;
+  padding: 7px 0;
+  transition: opacity 0.4s ease;
 }
 
 .lyric-line.active {
