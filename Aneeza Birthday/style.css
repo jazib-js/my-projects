@@ -171,6 +171,49 @@ a:hover {
   text-transform: uppercase;
 }
 
+.lyrics-block {
+  margin: 10px 0 18px;
+}
+
+.lyric-line {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: oklch(28% 0.035 15);
+  opacity: 0.55;
+  margin: 6px 0 0;
+  transition: opacity 0.3s ease;
+}
+
+.lyric-line:first-child {
+  margin-top: 0;
+}
+
+.lyric-line.active {
+  opacity: 1;
+}
+
+.song-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(32% 0.13 10);
+  transition: color 0.2s ease;
+}
+
+.song-play-btn:hover {
+  color: oklch(24% 0.13 10);
+}
+
 /* --- Final screen --- */
 
 .final-screen {

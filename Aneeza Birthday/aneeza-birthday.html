@@ -180,6 +180,49 @@ a:hover {
   text-transform: uppercase;
 }
 
+.lyrics-block {
+  margin: 10px 0 18px;
+}
+
+.lyric-line {
+  font-family: 'Lora', Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: oklch(28% 0.035 15);
+  opacity: 0.55;
+  margin: 6px 0 0;
+  transition: opacity 0.3s ease;
+}
+
+.lyric-line:first-child {
+  margin-top: 0;
+}
+
+.lyric-line.active {
+  opacity: 1;
+}
+
+.song-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(32% 0.13 10);
+  transition: color 0.2s ease;
+}
+
+.song-play-btn:hover {
+  color: oklch(24% 0.13 10);
+}
+
 /* --- Final screen --- */
 
 .final-screen {
@@ -278,7 +321,20 @@ const DIM_PAST_STOPS = true;
 
 // --- Content ---
 const stopsData = [
-  { id: 's1', date: 'August, 2024', note: "I found you online. Or maybe you found me. Either way, something walked in without knocking and rearranged everything.", icon: 'star', song: { title: '— song title —', artist: '— artist —', quote: '— paste a line from the song here, about an unexpected beginning —', href: '#' } },
+  { id: 's1', date: 'August, 2024', note: "I found you online. Or maybe you found me. Either way, something walked in without knocking and rearranged everything.", icon: 'star', song: {
+    title: 'Apnaa Mujhe Tu Lagaa',
+    artist: 'Sonu Nigam',
+    hasPlayer: true,
+    audioSrc: 'audio/apnaa-mujhe-tu-lagaa.mp3',
+    clipStart: 36,
+    clipEnd: 47,
+    lyrics: [
+      'Anjaane ho tum, jo begaane ho tum',
+      'Jo pehchaane lagte ho kyun',
+      'Tum gehri neendon me jab soye soye ho',
+      'Toh mujhme jagte ho kyun',
+    ],
+  } },
   { id: 's2', date: 'The first weeks', note: "I had been fine before you. That was the problem — I had gotten so good at fine. And then you came along and fine stopped being enough.", icon: 'spark', song: null },
   { id: 's3', date: 'Somewhere in the middle', note: "It wasn't one moment. It was the accumulation of small ones — the way you read me without asking me to explain myself. Like you already spoke the language.", icon: 'moon', song: { title: '— song title —', artist: '— artist —', quote: '— paste a line about knowing, quietly and all at once —', href: '#' } },
   { id: 's4', date: 'The real part', note: "We fought. We came back. Every single time, we came back. That's not nothing. That's actually everything.", icon: 'repair', song: null },
@@ -301,6 +357,8 @@ const ICONS = {
 const CASSETTE_ICON = '<svg width="26" height="20" viewBox="0 0 28 20" fill="none" stroke="oklch(42% 0.13 12)" stroke-width="1.4"><rect x="1" y="1" width="26" height="18" rx="2"></rect><circle cx="9" cy="10" r="3"></circle><circle cx="19" cy="10" r="3"></circle><rect x="11" y="8.5" width="6" height="3" fill="oklch(42% 0.13 12)" stroke="none"></rect></svg>';
 
 const PLAY_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="oklch(32% 0.13 10)" stroke-width="1.4"></circle><polygon points="8,6 8,14 15,10" fill="oklch(32% 0.13 10)"></polygon></svg>';
+
+const PAUSE_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="oklch(32% 0.13 10)" stroke-width="1.4"></circle><rect x="7" y="6" width="2.2" height="8" fill="oklch(32% 0.13 10)"></rect><rect x="10.8" y="6" width="2.2" height="8" fill="oklch(32% 0.13 10)"></rect></svg>';
 
 // --- Road path: anchors alternate x (16/64 in an 80-wide viewBox) at each
 // stop's center y. Cubic beziers with control points held at each endpoint's
@@ -363,10 +421,14 @@ function toggleSong(id, card, trigger) {
   const wasOpen = state.expandedSong === id;
   if (state.expandedSong && state.expandedSong !== id) {
     const prevCard = stopRefs[`song-${state.expandedSong}`];
-    if (prevCard) prevCard.remove();
+    if (prevCard) {
+      if (prevCard._audio) prevCard._audio.pause();
+      prevCard.remove();
+    }
   }
   state.expandedSong = wasOpen ? null : id;
   if (wasOpen) {
+    if (card._audio) card._audio.pause();
     if (card.parentNode) card.remove();
   } else {
     trigger.parentNode.appendChild(card);
@@ -374,7 +436,62 @@ function toggleSong(id, card, trigger) {
   }
 }
 
+// Plays only the [clipStart, clipEnd) window of the track and highlights the
+// lyric line whose share of that window the playhead currently falls in
+// (lines aren't individually timestamped, so the window is split evenly).
+function wirePlayer(card, song) {
+  const audio = new Audio(song.audioSrc);
+  audio.preload = 'none';
+  card._audio = audio;
+
+  const btn = card.querySelector('.song-play-btn');
+  const playIconWrap = card.querySelector('.play-icon-wrap');
+  const pauseIconWrap = card.querySelector('.pause-icon-wrap');
+  const label = card.querySelector('.song-play-label');
+  const lyricLines = card.querySelectorAll('.lyric-line');
+  const segment = song.clipEnd - song.clipStart;
+  const perLine = segment / song.lyrics.length;
+
+  function setPlayingUI(isPlaying) {
+    playIconWrap.hidden = isPlaying;
+    pauseIconWrap.hidden = !isPlaying;
+    label.textContent = isPlaying ? 'pause' : 'play clip';
+  }
+
+  function clearHighlight() {
+    lyricLines.forEach((el) => el.classList.remove('active'));
+  }
+
+  audio.addEventListener('timeupdate', () => {
+    if (audio.currentTime >= song.clipEnd) {
+      audio.pause();
+      audio.currentTime = song.clipStart;
+      clearHighlight();
+      return;
+    }
+    const elapsed = audio.currentTime - song.clipStart;
+    if (elapsed < 0) return;
+    const idx = Math.min(lyricLines.length - 1, Math.floor(elapsed / perLine));
+    lyricLines.forEach((el, i) => el.classList.toggle('active', i === idx));
+  });
+
+  audio.addEventListener('play', () => setPlayingUI(true));
+  audio.addEventListener('pause', () => setPlayingUI(false));
+
+  btn.addEventListener('click', () => {
+    if (audio.paused) {
+      if (audio.currentTime < song.clipStart || audio.currentTime >= song.clipEnd) {
+        audio.currentTime = song.clipStart;
+      }
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  });
+}
+
 function render() {
+  const roadContainer = document.getElementById('roadContainer');
   const roadSvg = document.getElementById('roadSvg');
   const roadPath = document.getElementById('roadPath');
   const nodesLayer = document.getElementById('nodesLayer');
@@ -433,11 +550,28 @@ function render() {
 
       const card = document.createElement('div');
       card.className = 'song-card';
-      card.innerHTML = `
-        <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
-        <p class="song-quote">"${stop.song.quote}"</p>
-        <a class="song-listen" href="${stop.song.href}" target="_blank" rel="noopener">${PLAY_ICON}listen</a>
-      `;
+
+      if (stop.song.hasPlayer) {
+        const lyricsHTML = stop.song.lyrics
+          .map((line, i) => `<p class="lyric-line" data-line-index="${i}">${line}</p>`)
+          .join('');
+        card.innerHTML = `
+          <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
+          <div class="lyrics-block">${lyricsHTML}</div>
+          <button type="button" class="song-play-btn" aria-label="Play clip">
+            <span class="play-icon-wrap">${PLAY_ICON}</span>
+            <span class="pause-icon-wrap" hidden>${PAUSE_ICON}</span>
+            <span class="song-play-label">play clip</span>
+          </button>
+        `;
+        wirePlayer(card, stop.song);
+      } else {
+        card.innerHTML = `
+          <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
+          <p class="song-quote">"${stop.song.quote}"</p>
+          <a class="song-listen" href="${stop.song.href}" target="_blank" rel="noopener">${PLAY_ICON}listen</a>
+        `;
+      }
 
       trigger.addEventListener('click', () => toggleSong(stop.id, card, trigger));
     }
