@@ -189,7 +189,12 @@ function wirePlayer(card, song) {
     track.style.transform = `translateY(${-centerOffset}px)`;
   }
 
-  audio.addEventListener('timeupdate', () => {
+  // timeupdate only fires a few times a second, which reads as visible lag
+  // against the vocal; a rAF loop checks every frame instead so the
+  // highlight/scroll starts the instant a line's timestamp is reached.
+  let rafId = null;
+
+  function tick() {
     if (audio.currentTime >= song.clipEnd) {
       audio.pause();
       audio.currentTime = song.clipStart;
@@ -197,10 +202,20 @@ function wirePlayer(card, song) {
       return;
     }
     updateLyrics(audio.currentTime);
-  });
+    rafId = requestAnimationFrame(tick);
+  }
 
-  audio.addEventListener('play', () => setPlayingUI(true));
-  audio.addEventListener('pause', () => setPlayingUI(false));
+  audio.addEventListener('play', () => {
+    setPlayingUI(true);
+    rafId = requestAnimationFrame(tick);
+  });
+  audio.addEventListener('pause', () => {
+    setPlayingUI(false);
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  });
 
   btn.addEventListener('click', () => {
     if (audio.paused) {
