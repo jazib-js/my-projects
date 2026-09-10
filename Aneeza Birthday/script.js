@@ -202,17 +202,24 @@ function positionLetterPanel(panel, stopId) {
   const rowEl = stopRefs[stopId];
   const rect = rowEl ? rowEl.getBoundingClientRect() : null;
   const vw = window.innerWidth, vh = window.innerHeight;
-  const panelWidth = 380, gap = 32;
-  const spaceRight = rect ? vw - rect.right : 0;
+  const panelWidth = 380, rightMargin = 24;
 
-  if (rect && spaceRight >= panelWidth + gap + 20) {
-    const top = Math.min(Math.max(rect.top, 20), vh - 120);
+  // Docks to the viewport's own right edge (not computed relative to the
+  // stop row) once the viewport itself is wide enough. Checking space to
+  // the right of the row instead meant the road-container's centered
+  // 760px column left "room to the right of the row" far short of "room
+  // in the browser window" on plenty of ordinary screen widths (1280-1600px)
+  // - the panel fell back to centered far more often than it should have.
+  if (vw >= panelWidth + rightMargin * 2 + 200) {
+    const top = rect ? Math.min(Math.max(rect.top, 20), vh - 120) : '10vh';
     panel.style.width = `${panelWidth}px`;
-    panel.style.left = `${rect.right + gap}px`;
-    panel.style.top = `${top}px`;
+    panel.style.left = '';
+    panel.style.right = `${rightMargin}px`;
+    panel.style.top = typeof top === 'number' ? `${top}px` : top;
   } else {
     const width = Math.min(420, vw * 0.92);
     panel.style.width = `${width}px`;
+    panel.style.right = '';
     panel.style.top = '10vh';
     panel.style.left = `calc(50% - ${width / 2}px)`;
   }
