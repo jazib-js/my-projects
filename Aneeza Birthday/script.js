@@ -4,68 +4,86 @@ const DIM_PAST_STOPS = true;
 
 // --- Content ---
 const stopsData = [
-  { id: 's1', date: 'August, 2024', note: "I found you online. Or maybe you found me. Either way, something walked in without knocking and rearranged everything.", icon: 'star', song: {
-    title: 'Apnaa Mujhe Tu Lagaa',
-    artist: 'Sonu Nigam',
-    hasPlayer: true,
-    audioSrc: 'audio/apnaa-mujhe-tu-lagaa.mp3',
-    clipStart: 36,
-    clipEnd: 184,
-    lyrics: [
-      { time: 36, text: 'Anjaane ho tum, jo begaane ho tum' },
-      { time: 40, text: 'Jo pehchaane lagte ho kyun' },
-      { time: 42, text: 'Tum gehri neendon mein jab soye soye ho' },
-      { time: 45, text: 'Toh mujhme jagte ho kyun' },
-      { time: 48, text: 'Jab tujhko paata hai dil muskuraata hai' },
-      { time: 51, text: 'Kya tujhse hai waasta' },
-      { time: 54, text: 'Kya tujhme dhoondoon main' },
-      { time: 56, text: 'Kya tujhse chaahoon main' },
-      { time: 58, text: 'Kya hai tujhme mera' },
-      { time: 59, text: 'Jaanoon na main' },
-      { time: 60, text: 'Tujhse mera hissa hai kya' },
-      { time: 66, text: 'Pr ajnabi apna mujhe tu lagaa' },
-      { time: 71, text: 'Jaanoon na main' },
-      { time: 73, text: 'Tujhse mera rishta hai kya' },
-      { time: 77, text: 'Pr ajnabi apna mujhe tu lagaa' },
-      { time: 112, text: 'Tujhse taalluq jo nahi kuch mera' },
-      { time: 118, text: 'Kyun tu lage hai apna sa' },
-      { time: 124, text: 'Dekhoon jo tujhko ek nazar jaaye bhar' },
-      { time: 130, text: 'Mujhme hai mera, mera jo khaza' },
-      { time: 134, text: 'Zindagi mein khushi tere aane se hai' },
-      { time: 140, text: 'Warna jeene mein gam har bahaane se hai' },
-      { time: 147, text: 'Yeh alag baat hai hum mile aaj hai' },
-      { time: 153, text: 'Dil tujhe jaanta ek zamaane se hai' },
-      { time: 159, text: 'Jaanoon na main tujhme' },
-      { time: 161, text: 'Mera hissa hai kya' },
-      { time: 166, text: 'Pr Ajnabi apna mujhe tu lagaa' },
-      { time: 170, text: 'Jaanoon na main tujhse mera rishta hai kya' },
-      { time: 176, text: 'Pr Ajnabi apna mujhy tu laga' },
-    ],
-  } },
-  { id: 's2', date: 'The first weeks', note: "I had been fine before you. That was the problem — I had gotten so good at fine. And then you came along and fine stopped being enough.", icon: 'spark', song: null },
-  { id: 's3', date: 'Somewhere in the middle', note: "It wasn't one moment. It was the accumulation of small ones — the way you read me without asking me to explain myself. Like you already spoke the language.", icon: 'moon', song: { title: '— song title —', artist: '— artist —', quote: '— paste a line about knowing, quietly and all at once —', href: '#' } },
-  { id: 's4', date: 'The real part', note: "We fought. We came back. Every single time, we came back. That's not nothing. That's actually everything.", icon: 'repair', song: null },
-  { id: 's5', date: 'What I keep', note: "Your hands fit in mine like they didn't have to learn the shape. Like some part of us already knew.", icon: 'rings', song: null },
-  { id: 's6', date: 'August, 2025', note: "You're far now. Different timezone, different morning. But I still reach for you first — across bad connections, across the silence between one person's night and another person's day. Same love. Different gravity.", icon: 'phone', song: { title: '— song title —', artist: '— artist —', quote: '— paste a line here about distance, or choosing someone anyway —', href: '#' } },
-  { id: 's7', date: 'Always', note: "I'm not the man I want to be yet. But I'm becoming him. For you. Because of you.", icon: 'ring', song: { title: '— song title —', artist: '— artist —', quote: '— paste a closing line here, a promise kind of line —', href: '#' } },
+  { id: 's1', title: 'Finding you', date: 'August, 2024', note: "I found you online. Or maybe you found me. Either way, you were a stranger. So why did you feel like something I already knew?", icon: 'star',
+    fullLetter: "You were a stranger.\n\nThat's the part I keep coming back to. You had no reason to mean anything to me. You were just someone on a screen, someone I hadn't heard of the day before, someone my life had been running completely fine without.\n\nAnd then it wasn't fine anymore. Not in a bad way. In the way a room stops being fine once you've rearranged the furniture — you can't remember why it was ever the other way.\n\nI don't know what I was looking for when I found you. I don't think I was looking for anything. I'd gotten so good at not looking. At keeping everything manageable and contained and exactly the size of something I could carry alone. And then there you were, a stranger, someone completely unknown, and something in me just recognized you. Like running into a word you've never seen before and somehow knowing what it means.\n\nThat scared me a little. I want to be honest about that. Because I'd met people before and felt nothing like this, and here you were, someone I didn't know yet, waking something up in me that I didn't even realize had been asleep.\n\nYou didn't announce yourself. You just kept being there. A little more each day. Until one morning I noticed I was arranging my whole day around the hope of hearing from you, and I thought, oh. Oh, this is something.\n\nI didn't go looking for this. I want you to know that. I was fine. And then you showed up anyway, uninvited, and none of it has been fine since — in the best way a thing can stop being fine.\n\nI still don't fully know what to call what I felt in those first weeks. It wasn't love yet, not the named kind. It was more like the moment before you remember a word that's been sitting at the tip of your tongue. Something familiar arriving in an unfamiliar face.\n\nAnjane ho tum. You were unknown.\n\nAnd yet — pehchane lagte ho kyun. Why did you already feel like mine?\n\nI don't have a clean answer. I'm not sure I need one anymore. Some things don't need explaining. Some strangers were never really strangers at all, just people your life hadn't introduced you to yet. You were a stranger, but you never felt like one. You felt like I had known you for many lifetimes. Like whatever we're made of, you and me are made of the same thing. Like you are part of me, and I am a part of you, and have always been that way.\n\nYou were the introduction I didn't know I'd been waiting for.",
+    song: {
+      title: 'Apnaa Mujhe Tu Lagaa',
+      artist: 'Sonu Nigam',
+      hasPlayer: true,
+      audioSrc: 'audio/apnaa-mujhe-tu-lagaa.mp3',
+      clipStart: 36,
+      clipEnd: 184,
+      lyrics: [
+        { time: 36, text: 'Anjaane ho tum, jo begaane ho tum' },
+        { time: 40, text: 'Jo pehchaane lagte ho kyun' },
+        { time: 42, text: 'Tum gehri neendon mein jab soye soye ho' },
+        { time: 45, text: 'Toh mujhme jagte ho kyun' },
+        { time: 48, text: 'Jab tujhko paata hai dil muskuraata hai' },
+        { time: 51, text: 'Kya tujhse hai waasta' },
+        { time: 54, text: 'Kya tujhme dhoondoon main' },
+        { time: 56, text: 'Kya tujhse chaahoon main' },
+        { time: 58, text: 'Kya hai tujhme mera' },
+        { time: 59, text: 'Jaanoon na main' },
+        { time: 60, text: 'Tujhse mera hissa hai kya' },
+        { time: 66, text: 'Pr ajnabi apna mujhe tu lagaa' },
+        { time: 71, text: 'Jaanoon na main' },
+        { time: 73, text: 'Tujhse mera rishta hai kya' },
+        { time: 77, text: 'Pr ajnabi apna mujhe tu lagaa' },
+        { time: 112, text: 'Tujhse taalluq jo nahi kuch mera' },
+        { time: 118, text: 'Kyun tu lage hai apna sa' },
+        { time: 124, text: 'Dekhoon jo tujhko ek nazar jaaye bhar' },
+        { time: 130, text: 'Mujhme hai mera, mera jo khaza' },
+        { time: 134, text: 'Zindagi mein khushi tere aane se hai' },
+        { time: 140, text: 'Warna jeene mein gam har bahaane se hai' },
+        { time: 147, text: 'Yeh alag baat hai hum mile aaj hai' },
+        { time: 153, text: 'Dil tujhe jaanta ek zamaane se hai' },
+        { time: 159, text: 'Jaanoon na main tujhme' },
+        { time: 161, text: 'Mera hissa hai kya' },
+        { time: 166, text: 'Pr Ajnabi apna mujhe tu lagaa' },
+        { time: 170, text: 'Jaanoon na main tujhse mera rishta hai kya' },
+        { time: 176, text: 'Pr Ajnabi apna mujhy tu laga' },
+      ],
+    },
+  },
+  { id: 's2', title: 'How do I even begin to explain this', date: 'The first weeks', note: "Slowly, without warning, without a single word exchanged about it — you became everything. And I still didn't know how to say it.", icon: 'spark', fullLetter: '',
+    song: { title: 'Rafta Rafta Ho Gayi', artist: 'Atif Aslam', quote: 'Sajde mein tere sar hai, thoda sa dil mein darr hai — kaise karoon main bayaan.', translation: 'My head bows before you, my heart holds a little fear. How do I even say this.', href: '#' } },
+  { id: 's3', title: 'The distance I kept on purpose', date: 'Somewhere in the middle', note: "I started to realize what I felt — and that's exactly when I decided to say nothing. Not because I didn't know. Because I knew too well.", icon: 'moon', fullLetter: '',
+    song: { title: 'Ho Na Jaye Pyar', artist: 'Atif Aslam', quote: 'Tujhse door main ek hi wajah ke liye hoon — kamzor ho jaata hoon main.', translation: 'I stay away from you for just one reason. You make me weak.', href: '#' } },
+  { id: 's4', title: 'We came back', date: 'The real part', note: "We fought. We came back. Every single time, we came back. That's not nothing. That's actually everything.", icon: 'repair', song: null,
+    fullLetter: '— write the full letter for this stop here —' },
+  { id: 's5', title: 'Your hands in mine', date: 'What I keep', note: "Your hands fit in mine like they didn't have to learn the shape. Like some part of us already knew.", icon: 'rings', song: null,
+    fullLetter: '— write the full letter for this stop here —' },
+  { id: 's6', title: 'Different gravity', date: 'August, 2025', note: "You're far now. Different timezone, different morning. But I still reach for you first — across bad connections, across the silence between one person's night and another person's day. Same love. Different gravity.", icon: 'phone',
+    song: { title: '— song title —', artist: '— artist —', quote: '— paste a line here about distance, or choosing someone anyway —', href: '#' },
+    fullLetter: '— write the full letter for this stop here —' },
+  { id: 's7', title: 'The promise', date: 'Always', note: "I'm not the man I want to be yet. But I'm becoming him. For you. Because of you.", icon: 'ring',
+    song: { title: '— song title —', artist: '— artist —', quote: '— paste a closing line here, a promise kind of line —', href: '#' },
+    fullLetter: '— write the full letter for this stop here —' },
 ];
 
-// --- Icons (26x26, viewBox 0 0 28 28, stroke/fill oklch(52% 0.14 14)) ---
+// --- Icons (26x26, viewBox 0 0 28 28, stroke/fill #7F1D25) ---
 const ICONS = {
-  star: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6" stroke-linejoin="round"><path d="M14 2 L17 10 L26 10 L18.5 15.5 L21.5 24 L14 18.5 L6.5 24 L9.5 15.5 L2 10 L11 10 Z"></path></svg>',
-  spark: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6" stroke-linecap="round"><line x1="14" y1="2" x2="14" y2="26"></line><line x1="2" y1="14" x2="26" y2="14"></line><line x1="5" y1="5" x2="23" y2="23"></line><line x1="23" y1="5" x2="5" y2="23"></line></svg>',
-  moon: '<svg width="26" height="26" viewBox="0 0 28 28" fill="oklch(52% 0.14 14)"><path d="M18,4 A10,10 0 1,0 18,24 A8,8 0 1,1 18,4 Z"></path></svg>',
-  repair: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6" stroke-linecap="round"><path d="M6,16 A9,9 0 1,1 10,22.5"></path><polygon points="10,22.5 4,22 7,17" fill="oklch(52% 0.14 14)" stroke="none"></polygon></svg>',
-  rings: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6"><circle cx="10" cy="14" r="7"></circle><circle cx="18" cy="14" r="7"></circle></svg>',
-  phone: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="3" width="10" height="22" rx="2"></rect><line x1="12" y1="21" x2="16" y2="21"></line></svg>',
-  ring: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="oklch(52% 0.14 14)" stroke-width="1.6"><circle cx="14" cy="18" r="7"></circle><rect x="10.5" y="2" width="7" height="7" transform="rotate(45 14 5.5)" fill="oklch(72% 0.11 20)" stroke="none"></rect></svg>',
+  star: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6" stroke-linejoin="round"><path d="M14 2 L17 10 L26 10 L18.5 15.5 L21.5 24 L14 18.5 L6.5 24 L9.5 15.5 L2 10 L11 10 Z"></path></svg>',
+  spark: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6" stroke-linecap="round"><line x1="14" y1="2" x2="14" y2="26"></line><line x1="2" y1="14" x2="26" y2="14"></line><line x1="5" y1="5" x2="23" y2="23"></line><line x1="23" y1="5" x2="5" y2="23"></line></svg>',
+  moon: '<svg width="26" height="26" viewBox="0 0 28 28" fill="#7F1D25"><path d="M18,4 A10,10 0 1,0 18,24 A8,8 0 1,1 18,4 Z"></path></svg>',
+  repair: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6" stroke-linecap="round"><path d="M6,16 A9,9 0 1,1 10,22.5"></path><polygon points="10,22.5 4,22 7,17" fill="#7F1D25" stroke="none"></polygon></svg>',
+  rings: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6"><circle cx="10" cy="14" r="7"></circle><circle cx="18" cy="14" r="7"></circle></svg>',
+  phone: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="3" width="10" height="22" rx="2"></rect><line x1="12" y1="21" x2="16" y2="21"></line></svg>',
+  ring: '<svg width="26" height="26" viewBox="0 0 28 28" fill="none" stroke="#7F1D25" stroke-width="1.6"><circle cx="14" cy="18" r="7"></circle><rect x="10.5" y="2" width="7" height="7" transform="rotate(45 14 5.5)" fill="oklch(72% 0.11 20)" stroke="none"></rect></svg>',
 };
 
-const CASSETTE_ICON = '<svg width="26" height="20" viewBox="0 0 28 20" fill="none" stroke="oklch(42% 0.13 12)" stroke-width="1.4"><rect x="1" y="1" width="26" height="18" rx="2"></rect><circle cx="9" cy="10" r="3"></circle><circle cx="19" cy="10" r="3"></circle><rect x="11" y="8.5" width="6" height="3" fill="oklch(42% 0.13 12)" stroke="none"></rect></svg>';
+const CASSETTE_ICON = '<svg width="26" height="20" viewBox="0 0 28 20" fill="none" stroke="#9F6162" stroke-width="1.4"><rect x="1" y="1" width="26" height="18" rx="2"></rect><circle cx="9" cy="10" r="3"></circle><circle cx="19" cy="10" r="3"></circle><rect x="11" y="8.5" width="6" height="3" fill="#9F6162" stroke="none"></rect></svg>';
 
-const PLAY_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="oklch(32% 0.13 10)" stroke-width="1.4"></circle><polygon points="8,6 8,14 15,10" fill="oklch(32% 0.13 10)"></polygon></svg>';
+const PLAY_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#7F1D25" stroke-width="1.4"></circle><polygon points="8,6 8,14 15,10" fill="#7F1D25"></polygon></svg>';
 
-const PAUSE_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="oklch(32% 0.13 10)" stroke-width="1.4"></circle><rect x="7" y="6" width="2.2" height="8" fill="oklch(32% 0.13 10)"></rect><rect x="10.8" y="6" width="2.2" height="8" fill="oklch(32% 0.13 10)"></rect></svg>';
+const PAUSE_ICON = '<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#7F1D25" stroke-width="1.4"></circle><rect x="7" y="6" width="2.2" height="8" fill="#7F1D25"></rect><rect x="10.8" y="6" width="2.2" height="8" fill="#7F1D25"></rect></svg>';
+
+// Envelope trigger icon — the flap line changes shape (angled/closed vs flat/open)
+// to reflect whether this stop's letter panel is currently open.
+function envelopeIcon(isOpen) {
+  const flapD = isOpen ? 'M2,2 L14,2 L26,2' : 'M1,1 L14,12 L27,1';
+  return `<svg width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="#9F6162" stroke-width="1.4" stroke-linecap="round"><rect x="1" y="1" width="26" height="18" rx="1.5"></rect><path d="${flapD}" fill="none" stroke-linejoin="round"></path></svg>`;
+}
 
 // --- Road path: anchors alternate x (16/64 in an 80-wide viewBox) at each
 // stop's center y. Cubic beziers with control points held at each endpoint's
@@ -90,17 +108,21 @@ const state = {
   visible: {},
   activeId: null,
   expandedSong: null,
+  expandedLetter: null,
 };
 
 const stopRefs = {};
 const nodeRefs = {};
+const letterIconRefs = {};
+const letterPanelRefs = {};
+let letterRepositionHandler = null;
 
 function updateNode(id, isActive) {
   const el = nodeRefs[id];
   if (!el) return;
   el.style.width = isActive ? '14px' : '10px';
   el.style.height = isActive ? '14px' : '10px';
-  el.style.background = isActive ? 'oklch(62% 0.17 8)' : 'oklch(58% 0.16 12)';
+  el.style.background = isActive ? '#7F1D25' : '#CD9395';
 }
 
 function updateRow(id) {
@@ -141,6 +163,114 @@ function toggleSong(id, card, trigger) {
     trigger.parentNode.appendChild(card);
     stopRefs[`song-${id}`] = card;
   }
+}
+
+// --- "Read the letter" panel ---
+// Rendered as a top-level sibling (in #lettersLayer), never nested inside a
+// .stop-row — a transformed ancestor (the row's reveal transform) breaks
+// position:fixed on any descendant, so the panel must live outside it.
+function buildLetterPanel(stop) {
+  const panel = document.createElement('div');
+  panel.className = 'letter-panel';
+
+  const fade = document.createElement('div');
+  fade.className = 'letter-fade';
+
+  if (stop.title) {
+    const titleEl = document.createElement('div');
+    titleEl.className = 'letter-title';
+    titleEl.textContent = stop.title;
+    fade.appendChild(titleEl);
+  }
+
+  const bodyEl = document.createElement('p');
+  bodyEl.className = 'letter-body';
+  bodyEl.textContent = stop.fullLetter;
+  fade.appendChild(bodyEl);
+
+  const foldEl = document.createElement('div');
+  foldEl.className = 'letter-fold';
+  foldEl.textContent = 'fold it back up';
+  foldEl.addEventListener('click', () => toggleLetter(stop.id));
+  fade.appendChild(foldEl);
+
+  panel.appendChild(fade);
+  return panel;
+}
+
+function positionLetterPanel(panel, stopId) {
+  const rowEl = stopRefs[stopId];
+  const rect = rowEl ? rowEl.getBoundingClientRect() : null;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const panelWidth = 380, gap = 32;
+  const spaceRight = rect ? vw - rect.right : 0;
+
+  if (rect && spaceRight >= panelWidth + gap + 20) {
+    const top = Math.min(Math.max(rect.top, 20), vh - 120);
+    panel.style.width = `${panelWidth}px`;
+    panel.style.left = `${rect.right + gap}px`;
+    panel.style.top = `${top}px`;
+  } else {
+    const width = Math.min(420, vw * 0.92);
+    panel.style.width = `${width}px`;
+    panel.style.top = '10vh';
+    panel.style.left = `calc(50% - ${width / 2}px)`;
+  }
+}
+
+function setEnvelopeIcon(id, isOpen) {
+  const iconWrap = letterIconRefs[id];
+  if (iconWrap) iconWrap.innerHTML = envelopeIcon(isOpen);
+}
+
+function ensureLetterRepositionListener() {
+  if (letterRepositionHandler) return;
+  letterRepositionHandler = () => {
+    if (state.expandedLetter && letterPanelRefs[state.expandedLetter]) {
+      positionLetterPanel(letterPanelRefs[state.expandedLetter], state.expandedLetter);
+    }
+  };
+  window.addEventListener('scroll', letterRepositionHandler, { passive: true });
+  window.addEventListener('resize', letterRepositionHandler);
+}
+
+function teardownLetterRepositionListenerIfIdle() {
+  if (!state.expandedLetter && letterRepositionHandler) {
+    window.removeEventListener('scroll', letterRepositionHandler);
+    window.removeEventListener('resize', letterRepositionHandler);
+    letterRepositionHandler = null;
+  }
+}
+
+function openLetterPanel(id) {
+  const stop = stopsData.find((s) => s.id === id);
+  const panel = buildLetterPanel(stop);
+  document.getElementById('lettersLayer').appendChild(panel);
+  letterPanelRefs[id] = panel;
+  positionLetterPanel(panel, id);
+  setEnvelopeIcon(id, true);
+  ensureLetterRepositionListener();
+}
+
+function closeLetterPanel(id) {
+  const panel = letterPanelRefs[id];
+  if (panel && panel.parentNode) panel.remove();
+  delete letterPanelRefs[id];
+  setEnvelopeIcon(id, false);
+}
+
+function toggleLetter(id) {
+  const wasOpen = state.expandedLetter === id;
+  if (state.expandedLetter && state.expandedLetter !== id) {
+    closeLetterPanel(state.expandedLetter);
+  }
+  state.expandedLetter = wasOpen ? null : id;
+  if (wasOpen) {
+    closeLetterPanel(id);
+  } else {
+    openLetterPanel(id);
+  }
+  teardownLetterRepositionListenerIfIdle();
 }
 
 // Plays the [clipStart, clipEnd) window of the track. Each lyric line carries
@@ -235,7 +365,6 @@ function wirePlayer(card, song) {
 }
 
 function render() {
-  const roadContainer = document.getElementById('roadContainer');
   const roadSvg = document.getElementById('roadSvg');
   const roadPath = document.getElementById('roadPath');
   const nodesLayer = document.getElementById('nodesLayer');
@@ -256,7 +385,7 @@ function render() {
     node.style.top = `${(anchor.y / (n * 100)) * 100}%`;
     node.style.width = '10px';
     node.style.height = '10px';
-    node.style.background = 'oklch(58% 0.16 12)';
+    node.style.background = '#CD9395';
     nodesLayer.appendChild(node);
     nodeRefs[stop.id] = node;
 
@@ -264,6 +393,13 @@ function render() {
     const row = document.createElement('div');
     row.className = 'stop-row';
     row.setAttribute('data-stop-id', stop.id);
+
+    if (stop.title) {
+      const titleEl = document.createElement('div');
+      titleEl.className = 'stop-title';
+      titleEl.textContent = stop.title;
+      row.appendChild(titleEl);
+    }
 
     const dateEl = document.createElement('div');
     dateEl.className = 'stop-date';
@@ -281,6 +417,29 @@ function render() {
     noteEl.className = 'stop-note';
     noteEl.textContent = stop.note;
     row.appendChild(noteEl);
+
+    if (stop.fullLetter !== undefined && stop.fullLetter !== null) {
+      const letterWrap = document.createElement('div');
+      letterWrap.className = 'letter-wrap';
+
+      const trigger = document.createElement('div');
+      trigger.className = 'letter-trigger';
+
+      const iconSpan = document.createElement('span');
+      iconSpan.innerHTML = envelopeIcon(false);
+      letterIconRefs[stop.id] = iconSpan;
+
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'letter-trigger-label';
+      labelSpan.textContent = 'read the letter';
+
+      trigger.appendChild(iconSpan);
+      trigger.appendChild(labelSpan);
+      trigger.addEventListener('click', () => toggleLetter(stop.id));
+
+      letterWrap.appendChild(trigger);
+      row.appendChild(letterWrap);
+    }
 
     if (stop.song) {
       const songWrap = document.createElement('div');
@@ -312,9 +471,13 @@ function render() {
         `;
         wirePlayer(card, stop.song);
       } else {
+        const translationHTML = stop.song.translation
+          ? `<p class="song-translation">${stop.song.translation}</p>`
+          : '';
         card.innerHTML = `
           <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
           <p class="song-quote">"${stop.song.quote}"</p>
+          ${translationHTML}
           <a class="song-listen" href="${stop.song.href}" target="_blank" rel="noopener">${PLAY_ICON}listen</a>
         `;
       }
