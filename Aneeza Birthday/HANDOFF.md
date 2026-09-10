@@ -55,6 +55,20 @@ positioning constraints), see `CLAUDE.md` instead — this file is about
    judgment call to keep the amount of quoted song lyric text on the page
    modest — worth keeping in mind for any future songs added the same way.
 
+6. **Letter panel positioning bug, found and fixed** — the panel's
+   "is there room to dock beside the row" check was based on space to the
+   *right of the stop's own row* (inside the centered 760px content
+   column). That meant on plenty of ordinary screen widths (roughly
+   1280-1600px), there was never "enough room next to the row" even though
+   the browser window plainly had space — the panel fell back to centered
+   far more often than intended. Fixed by checking the *viewport's own
+   width* once and, when there's room, docking the panel to the **screen's
+   right edge** (`right: 24px`) instead of computing a position relative to
+   the row. Only the vertical position still comes from the clicked stop's
+   bounding rect. Worth remembering for any similar "position beside a
+   centered column" UI in the future: measure against the viewport, not the
+   column.
+
 ## Status per stop, as of now
 
 | Stop | Title | Note/date | Letter | Song |
