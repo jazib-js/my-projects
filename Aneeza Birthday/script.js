@@ -46,7 +46,7 @@ const stopsData = [
     },
   },
   { id: 's2', title: 'How do I even begin to explain this', date: 'The first weeks', note: "Slowly, without warning, without a single word exchanged about it — you became everything. And I still didn't know how to say it.", icon: 'spark', fullLetter: '',
-    song: { title: 'Rafta Rafta Ho Gayi', artist: 'Atif Aslam', quote: 'Sajde mein tere sar hai, thoda sa dil mein darr hai — kaise karoon main bayaan.', translation: 'My head bows before you, my heart holds a little fear. How do I even say this.', href: '#' } },
+    song: { title: 'Rafta Rafta Ho Gayi', artist: 'Arijit Singh', quote: 'Sajde mein tere sar hai, thoda sa dil mein darr hai — kaise karoon main bayaan.', translation: 'My head bows before you, my heart holds a little fear. How do I even say this.', audioSrc: 'audio/rafta-rafta-ho-gayi.mp3', clipStart: 25, clipEnd: 105 } },
   { id: 's3', title: 'The distance I kept on purpose', date: 'Somewhere in the middle', note: "I started to realize what I felt — and that's exactly when I decided to say nothing. Not because I didn't know. Because I knew too well.", icon: 'moon', fullLetter: '',
     song: { title: 'Ho Na Jaye Pyar', artist: 'Atif Aslam', quote: 'Tujhse door main ek hi wajah ke liye hoon — kamzor ho jaata hoon main.', translation: 'I stay away from you for just one reason. You make me weak.', href: '#' } },
   { id: 's4', title: 'We came back', date: 'The real part', note: "We fought. We came back. Every single time, we came back. That's not nothing. That's actually everything.", icon: 'repair', song: null,
@@ -364,6 +364,47 @@ function wirePlayer(card, song) {
   });
 }
 
+// Lighter-weight version of wirePlayer for a plain quote-card that just needs
+// to play its [clipStart, clipEnd) clip in place of an external "listen"
+// link — no per-line lyric array/scroll to keep in sync, so plain
+// timeupdate (not rAF) is accurate enough here.
+function wireSimpleAudio(card, song) {
+  const audio = new Audio(song.audioSrc);
+  audio.preload = 'none';
+  card._audio = audio;
+
+  const btn = card.querySelector('.song-play-btn');
+  const playIconWrap = card.querySelector('.play-icon-wrap');
+  const pauseIconWrap = card.querySelector('.pause-icon-wrap');
+  const label = card.querySelector('.song-play-label');
+
+  function setPlayingUI(isPlaying) {
+    playIconWrap.hidden = isPlaying;
+    pauseIconWrap.hidden = !isPlaying;
+    label.textContent = isPlaying ? 'pause' : 'play song';
+  }
+
+  audio.addEventListener('timeupdate', () => {
+    if (audio.currentTime >= song.clipEnd) {
+      audio.pause();
+      audio.currentTime = song.clipStart;
+    }
+  });
+  audio.addEventListener('play', () => setPlayingUI(true));
+  audio.addEventListener('pause', () => setPlayingUI(false));
+
+  btn.addEventListener('click', () => {
+    if (audio.paused) {
+      if (audio.currentTime < song.clipStart || audio.currentTime >= song.clipEnd) {
+        audio.currentTime = song.clipStart;
+      }
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  });
+}
+
 function render() {
   const roadSvg = document.getElementById('roadSvg');
   const roadPath = document.getElementById('roadPath');
@@ -474,12 +515,22 @@ function render() {
         const translationHTML = stop.song.translation
           ? `<p class="song-translation">${stop.song.translation}</p>`
           : '';
+        const actionHTML = stop.song.audioSrc
+          ? `<div style="margin-top:16px;">
+               <button type="button" class="song-play-btn" aria-label="Play song">
+                 <span class="play-icon-wrap">${PLAY_ICON}</span>
+                 <span class="pause-icon-wrap" hidden>${PAUSE_ICON}</span>
+                 <span class="song-play-label">play song</span>
+               </button>
+             </div>`
+          : `<a class="song-listen" href="${stop.song.href}" target="_blank" rel="noopener">${PLAY_ICON}listen</a>`;
         card.innerHTML = `
           <div class="song-title">${stop.song.title} <span class="song-artist">— ${stop.song.artist}</span></div>
           <p class="song-quote">"${stop.song.quote}"</p>
           ${translationHTML}
-          <a class="song-listen" href="${stop.song.href}" target="_blank" rel="noopener">${PLAY_ICON}listen</a>
+          ${actionHTML}
         `;
+        if (stop.song.audioSrc) wireSimpleAudio(card, stop.song);
       }
 
       trigger.addEventListener('click', () => toggleSong(stop.id, card, trigger));
