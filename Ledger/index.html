@@ -153,6 +153,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .badge-gold{background:var(--gold-dim);color:var(--gold);}
 .badge-green{background:var(--green-dim);color:var(--green);}
 .badge-red{background:var(--red-dim);color:var(--red);}
+.badge-blue{background:var(--blue-dim);color:var(--blue);}
 .empty { text-align:center; padding:40px 20px; color:var(--text3); font-size:13px; }
 .empty .big { font-size:28px; margin-bottom:8px; }
 .mini-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:16px; }
@@ -166,7 +167,14 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .budget-fill { height:100%; border-radius:4px; transition:width 0.4s; }
 .budget-text { font-size:12px; color:var(--text3); width:90px; text-align:right; flex-shrink:0; }
 .divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
-.recur-item,.upcoming-item,.nw-item { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; }
+.recur-item,.upcoming-item,.nw-item,.task-item { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; }
+.task-check { width:20px; height:20px; border-radius:6px; border:1.5px solid var(--border2); flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; color:#0d0d0f; transition:all 0.15s; }
+.task-check.done { background:var(--green); border-color:var(--green); }
+.task-info { flex:1; min-width:0; }
+.task-name { font-size:13.5px; color:var(--text); }
+.task-name.done { text-decoration:line-through; color:var(--text3); }
+.task-meta { font-size:11px; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:6px; }
+.task-item.overdue .task-meta { color:var(--red); }
 .recur-badge { width:36px; height:36px; border-radius:8px; background:var(--blue-dim); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--blue); flex-shrink:0; font-weight:500; }
 .recur-info,.upcoming-info,.nw-item-info { flex:1; min-width:0; }
 .recur-name,.upcoming-name,.nw-item-name { font-size:13.5px; color:var(--text); }
@@ -258,6 +266,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
       <div class="nav-item" onclick="goTo('budget')"><span class="nav-icon">▦</span> Budget</div>
       <div class="nav-item" onclick="goTo('debt')"><span class="nav-icon">⊗</span> Debt Tracker</div>
       <div class="nav-item" onclick="goTo('networth')"><span class="nav-icon">◇</span> Net Worth</div>
+      <div class="nav-group-label">Productivity</div>
+      <div class="nav-item" onclick="goTo('tasks')"><span class="nav-icon">☑</span> Tasks</div>
       <div class="nav-group-label">Reflect</div>
       <div class="nav-item" onclick="goTo('notes')"><span class="nav-icon">✎</span> Journal</div>
       <div class="nav-item" onclick="goTo('advisor')"><span class="nav-icon">✦</span> AI Advisor</div>
@@ -528,6 +538,32 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
         </div>
       </div>
 
+      <!-- TASKS -->
+      <div class="page" id="page-tasks">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val gold" id="task-pending">0</div><div class="kpi-sub">tasks open</div></div>
+          <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val red" id="task-overdue">0</div><div class="kpi-sub">past deadline</div></div>
+          <div class="kpi"><div class="kpi-label">Completed this week</div><div class="kpi-val green" id="task-week">0</div><div class="kpi-sub">last 7 days</div></div>
+          <div class="kpi"><div class="kpi-label">Total completed</div><div class="kpi-val blue" id="task-total">0</div><div class="kpi-sub">all time</div></div>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="section-head"><div><div class="section-title">Progress</div><div class="section-sub">Tasks completed per day, last 14 days</div></div></div>
+          <div class="chart-wrap" style="height:180px;"><canvas id="taskChart"></canvas></div>
+        </div>
+        <div class="two-col">
+          <div class="card" style="align-self:start;">
+            <div class="section-head"><div class="section-title">Add task</div></div>
+            <div class="form-group" style="margin-bottom:14px;"><label>Task name</label><input type="text" id="task-name" placeholder="e.g. Finish client report" onkeydown="if(event.key==='Enter')addTask()"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Deadline (optional)</label><input type="date" id="task-deadline"></div>
+              <div class="form-group"><label>Priority</label><select id="task-priority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+            </div>
+            <button class="btn btn-gold" onclick="addTask()">+ Add task</button>
+          </div>
+          <div><div id="task-list"></div></div>
+        </div>
+      </div>
+
       <!-- REPORT CARD -->
       <div class="page" id="page-report">
         <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:20px;">
@@ -579,11 +615,11 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{} };
+let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[] };
 
 const CATS = ['Food & Dining','Transport','Shopping','Entertainment','Health','Bills & Utilities','Education','Rent','Personal Care','Other'];
 const CAT_COLORS = ['#c9a84c','#5b9cf6','#4caf6e','#e25555','#a855f7','#f97316','#06b6d4','#ec4899','#84cc16','#9d9a95'];
-let cashChart = null, catChart = null;
+let cashChart = null, catChart = null, taskChart = null;
 
 // ════════════════════════════════
 //   BOOT
@@ -633,7 +669,7 @@ function initUI() {
 // ════════════════════════════════
 async function loadAllData() {
   const uid = currentUser.id;
-  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts] = await Promise.all([
+  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts, tsk] = await Promise.all([
     db.from('income').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('expenses').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('goals').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
@@ -644,6 +680,7 @@ async function loadAllData() {
     db.from('liabilities').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
     db.from('debts').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
     db.from('notes').select('*').eq('user_id', uid).order('month', { ascending: false }),
+    db.from('tasks').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
   ]);
   state.income      = inc.data  || [];
   state.expenses    = exp.data  || [];
@@ -657,6 +694,7 @@ async function loadAllData() {
   state.debts       = dbt.data  || [];
   state.notes       = {};
   (nts.data||[]).forEach(n => { state.notes[n.month] = n.text; });
+  state.tasks       = tsk.data  || [];
 }
 
 // ════════════════════════════════
@@ -711,7 +749,7 @@ async function signOut() {
 
 function resetAndShowAuth() {
   currentUser = null;
-  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{} };
+  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[] };
   document.getElementById('app').style.display = 'none';
   showAuthScreen();
 }
@@ -735,7 +773,7 @@ function hideLoading() {
 // ════════════════════════════════
 //   NAVIGATION
 // ════════════════════════════════
-const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
+const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', tasks:'Tasks', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -748,6 +786,7 @@ function goTo(page) {
   if(page==='upcoming') renderUpcoming();
   if(page==='networth') renderNetWorth();
   if(page==='debt')     renderDebtList();
+  if(page==='tasks')    renderTasks();
   if(page==='notes')    renderNotes();
   if(page==='report')   { buildReportMonths(); renderReport(); }
 }
@@ -1113,6 +1152,89 @@ function renderNetWorth() {
 }
 
 // ════════════════════════════════
+//   TASKS
+// ════════════════════════════════
+async function addTask() {
+  const name = document.getElementById('task-name').value.trim();
+  if(!name) { toast('Enter a task name.'); return; }
+  const row = { user_id:currentUser.id, name, deadline:document.getElementById('task-deadline').value||null, priority:document.getElementById('task-priority').value, done:false };
+  const { data, error } = await db.from('tasks').insert(row).select().single();
+  if(error) { toast('Error: '+error.message); return; }
+  state.tasks.unshift(data);
+  document.getElementById('task-name').value=''; document.getElementById('task-deadline').value='';
+  renderTasks(); toast('Task added ☑');
+}
+
+async function toggleTask(id) {
+  const t = state.tasks.find(t=>t.id===id); if(!t) return;
+  const done = !t.done;
+  const completed_at = done ? new Date().toISOString() : null;
+  const { error } = await db.from('tasks').update({ done, completed_at }).eq('id', id);
+  if(error) { toast('Error: '+error.message); return; }
+  t.done = done; t.completed_at = completed_at;
+  renderTasks();
+}
+
+async function deleteTask(id) {
+  await db.from('tasks').delete().eq('id', id);
+  state.tasks = state.tasks.filter(t=>t.id!==id);
+  renderTasks();
+}
+
+function renderTasks() {
+  const tasks = state.tasks;
+  const todayISO = localISO(new Date());
+  const pending = tasks.filter(t=>!t.done);
+  const overdue = pending.filter(t=>t.deadline && t.deadline < todayISO);
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-6);
+  const completedThisWeek = tasks.filter(t=>t.done && t.completed_at && new Date(t.completed_at) >= weekAgo);
+  const totalCompleted = tasks.filter(t=>t.done);
+
+  document.getElementById('task-pending').textContent = pending.length;
+  document.getElementById('task-overdue').textContent = overdue.length;
+  document.getElementById('task-week').textContent = completedThisWeek.length;
+  document.getElementById('task-total').textContent = totalCompleted.length;
+
+  const priorityRank = { High:0, Medium:1, Low:2 };
+  const sorted = [...tasks].sort((a,b) => {
+    if(a.done !== b.done) return a.done ? 1 : -1;
+    if(!!a.deadline !== !!b.deadline) return a.deadline ? -1 : 1;
+    if(a.deadline && b.deadline && a.deadline !== b.deadline) return a.deadline < b.deadline ? -1 : 1;
+    return priorityRank[a.priority] - priorityRank[b.priority];
+  });
+
+  const el = document.getElementById('task-list');
+  if(!sorted.length) {
+    el.innerHTML = '<div class="empty"><div class="big">☑</div>No tasks yet. Add one on the left.</div>';
+  } else {
+    el.innerHTML = sorted.map(t => {
+      const isOverdue = !t.done && t.deadline && t.deadline < todayISO;
+      const dateStr = t.deadline ? new Date(t.deadline+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No deadline';
+      const badgeClass = t.priority==='High' ? 'badge-red' : t.priority==='Low' ? 'badge-blue' : 'badge-gold';
+      return `<div class="task-item${isOverdue?' overdue':''}">
+        <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+        <div class="task-info">
+          <div class="task-name${t.done?' done':''}">${t.name}</div>
+          <div class="task-meta"><span class="badge ${badgeClass}">${t.priority}</span> · ${dateStr}${isOverdue?' · overdue':''}</div>
+        </div>
+        <button class="tx-del" onclick="deleteTask(${t.id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+  renderTaskChart(tasks);
+}
+
+function renderTaskChart(tasks) {
+  if(taskChart){taskChart.destroy();taskChart=null;}
+  const days = [];
+  const now = new Date();
+  for(let i=13;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
+  const counts = days.map(day => tasks.filter(t=>t.completed_at && localISO(new Date(t.completed_at))===day).length);
+  const labels = days.map(day => { const [y,m,d]=day.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+  taskChart = new Chart(document.getElementById('taskChart'), { type:'bar', data:{ labels, datasets:[{ label:'Completed', data:counts, backgroundColor:'rgba(201,168,76,0.5)', borderColor:'#c9a84c', borderWidth:1, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ ticks:{color:'#5a5855',font:{size:10}}, grid:{display:false} }, y:{ beginAtZero:true, ticks:{color:'#5a5855',font:{size:11},stepSize:1}, grid:{color:'rgba(255,255,255,0.04)'} } } } });
+}
+
+// ════════════════════════════════
 //   REPORT CARD
 // ════════════════════════════════
 function renderReport() {
@@ -1323,6 +1445,7 @@ async function getAIAdvice() {
 // ════════════════════════════════
 function fmt(n) { return Math.round(n).toLocaleString(); }
 function fmtK(n) { return n>=1000?(n/1000).toFixed(1)+'k':Math.round(n); }
+function localISO(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 </script>
 </body>

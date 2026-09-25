@@ -104,6 +104,17 @@ create table notes (
   unique (user_id, month)
 );
 
+create table tasks (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  deadline date,
+  priority text not null default 'Medium',
+  done boolean not null default false,
+  completed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 -- Row Level Security: every table is owner-only via auth.uid() = user_id.
 alter table income      enable row level security;
 alter table expenses    enable row level security;
@@ -115,6 +126,7 @@ alter table assets      enable row level security;
 alter table liabilities enable row level security;
 alter table debts       enable row level security;
 alter table notes       enable row level security;
+alter table tasks       enable row level security;
 
 create policy "Owner access" on income      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on expenses    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -126,3 +138,4 @@ create policy "Owner access" on assets      for all using (auth.uid() = user_id)
 create policy "Owner access" on liabilities for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on debts       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on notes       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Owner access" on tasks       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
