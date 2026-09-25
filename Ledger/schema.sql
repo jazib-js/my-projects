@@ -115,6 +115,23 @@ create table tasks (
   created_at timestamptz not null default now()
 );
 
+create table habits (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  color text not null,
+  created_at timestamptz not null default now()
+);
+
+create table habit_logs (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  habit_id bigint not null references habits(id) on delete cascade,
+  date date not null,
+  created_at timestamptz not null default now(),
+  unique (habit_id, date)
+);
+
 -- Row Level Security: every table is owner-only via auth.uid() = user_id.
 alter table income      enable row level security;
 alter table expenses    enable row level security;
@@ -127,6 +144,8 @@ alter table liabilities enable row level security;
 alter table debts       enable row level security;
 alter table notes       enable row level security;
 alter table tasks       enable row level security;
+alter table habits      enable row level security;
+alter table habit_logs  enable row level security;
 
 create policy "Owner access" on income      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on expenses    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -139,3 +158,5 @@ create policy "Owner access" on liabilities for all using (auth.uid() = user_id)
 create policy "Owner access" on debts       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on notes       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on tasks       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Owner access" on habits      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Owner access" on habit_logs  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

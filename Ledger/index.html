@@ -137,6 +137,25 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .debt-stats { display:flex; gap:16px; font-size:11px; color:var(--text3); margin-top:8px; }
 .debt-stats strong { color:var(--text); }
 
+/* ── HABITS ── */
+.habit-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; }
+.habit-top { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px; flex-wrap:wrap; }
+.habit-id { display:flex; align-items:center; gap:10px; }
+.habit-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.habit-name { font-size:15px; font-weight:500; }
+.habit-actions { display:flex; align-items:center; gap:14px; }
+.habit-stats { display:flex; gap:14px; font-size:11px; color:var(--text3); }
+.habit-stats strong { color:var(--text); }
+.habit-mark { padding:7px 14px; border-radius:var(--radius-sm); font-size:12.5px; font-family:var(--font); cursor:pointer; border:1px solid var(--border2); background:transparent; color:var(--text2); transition:all 0.15s; }
+.habit-mark:hover { color:var(--text); }
+.habit-mark.done { background:var(--green-dim); border-color:rgba(76,175,110,0.3); color:var(--green); }
+.habit-warn { font-size:11px; color:var(--red); background:var(--red-dim); padding:2px 8px; border-radius:20px; }
+.heatmap { display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,11px); gap:3px; overflow-x:auto; padding-bottom:2px; }
+.heatmap-cell { width:11px; height:11px; border-radius:2px; }
+.color-picker { display:flex; gap:8px; flex-wrap:wrap; }
+.color-swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
+.color-swatch.selected { border-color:var(--text); transform:scale(1.12); }
+
 /* ── OTHER COMPONENTS ── */
 .ai-output { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-top:16px; min-height:80px; font-size:13.5px; line-height:1.75; color:var(--text2); }
 .ai-output.loading { display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -268,6 +287,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
       <div class="nav-item" onclick="goTo('networth')"><span class="nav-icon">◇</span> Net Worth</div>
       <div class="nav-group-label">Productivity</div>
       <div class="nav-item" onclick="goTo('tasks')"><span class="nav-icon">☑</span> Tasks</div>
+      <div class="nav-item" onclick="goTo('habits')"><span class="nav-icon">◆</span> Habits</div>
       <div class="nav-group-label">Reflect</div>
       <div class="nav-item" onclick="goTo('notes')"><span class="nav-icon">✎</span> Journal</div>
       <div class="nav-item" onclick="goTo('advisor')"><span class="nav-icon">✦</span> AI Advisor</div>
@@ -564,6 +584,33 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
         </div>
       </div>
 
+      <!-- HABITS -->
+      <div class="page" id="page-habits">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Habits tracked</div><div class="kpi-val gold" id="habit-count">0</div><div class="kpi-sub">active habits</div></div>
+          <div class="kpi"><div class="kpi-label">Today</div><div class="kpi-val green" id="habit-today">0/0</div><div class="kpi-sub">checked in</div></div>
+          <div class="kpi"><div class="kpi-label">Best streak</div><div class="kpi-val blue" id="habit-best-streak">0</div><div class="kpi-sub">days, current</div></div>
+          <div class="kpi"><div class="kpi-label">Consistency</div><div class="kpi-val gold" id="habit-consistency">0%</div><div class="kpi-sub">last 30 days</div></div>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="section-head"><div><div class="section-title">Progress</div><div class="section-sub">Overall check-in rate, last 14 days</div></div></div>
+          <div class="chart-wrap" style="height:180px;"><canvas id="habitChart"></canvas></div>
+        </div>
+        <div class="two-col" style="margin-bottom:20px;">
+          <div class="card" style="align-self:start;">
+            <div class="section-head"><div class="section-title">Add habit</div></div>
+            <div class="form-group" style="margin-bottom:14px;"><label>Habit name</label><input type="text" id="habit-name" placeholder="e.g. Read 10 pages" onkeydown="if(event.key==='Enter')addHabit()"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label>Color</label><div class="color-picker" id="habit-color-picker"></div></div>
+            <button class="btn btn-gold" onclick="addHabit()">+ Add habit</button>
+          </div>
+          <div class="card" style="align-self:start;">
+            <div class="section-head"><div class="section-title">How it works</div></div>
+            <p style="font-size:12.5px;color:var(--text2);line-height:1.8;">Mark each habit done once a day — no editing past days, so the streak stays honest. Miss a day and you'll see a quiet warning: Atomic Habits' rule is never miss twice in a row.</p>
+          </div>
+        </div>
+        <div id="habits-list"></div>
+      </div>
+
       <!-- REPORT CARD -->
       <div class="page" id="page-report">
         <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:20px;">
@@ -615,11 +662,12 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[] };
+let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[] };
 
 const CATS = ['Food & Dining','Transport','Shopping','Entertainment','Health','Bills & Utilities','Education','Rent','Personal Care','Other'];
 const CAT_COLORS = ['#c9a84c','#5b9cf6','#4caf6e','#e25555','#a855f7','#f97316','#06b6d4','#ec4899','#84cc16','#9d9a95'];
-let cashChart = null, catChart = null, taskChart = null;
+let cashChart = null, catChart = null, taskChart = null, habitChart = null;
+let selectedHabitColor = null;
 
 // ════════════════════════════════
 //   BOOT
@@ -661,6 +709,7 @@ function initUI() {
   buildBudgetInputs();
   buildReportMonths();
   buildNotePicker();
+  buildHabitColorPicker();
   renderAll();
 }
 
@@ -669,7 +718,7 @@ function initUI() {
 // ════════════════════════════════
 async function loadAllData() {
   const uid = currentUser.id;
-  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts, tsk] = await Promise.all([
+  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts, tsk, hab, hlg] = await Promise.all([
     db.from('income').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('expenses').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('goals').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
@@ -681,6 +730,8 @@ async function loadAllData() {
     db.from('debts').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
     db.from('notes').select('*').eq('user_id', uid).order('month', { ascending: false }),
     db.from('tasks').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
+    db.from('habits').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
+    db.from('habit_logs').select('*').eq('user_id', uid),
   ]);
   state.income      = inc.data  || [];
   state.expenses    = exp.data  || [];
@@ -695,6 +746,8 @@ async function loadAllData() {
   state.notes       = {};
   (nts.data||[]).forEach(n => { state.notes[n.month] = n.text; });
   state.tasks       = tsk.data  || [];
+  state.habits      = hab.data  || [];
+  state.habit_logs  = hlg.data  || [];
 }
 
 // ════════════════════════════════
@@ -749,7 +802,7 @@ async function signOut() {
 
 function resetAndShowAuth() {
   currentUser = null;
-  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[] };
+  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[] };
   document.getElementById('app').style.display = 'none';
   showAuthScreen();
 }
@@ -773,7 +826,7 @@ function hideLoading() {
 // ════════════════════════════════
 //   NAVIGATION
 // ════════════════════════════════
-const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', tasks:'Tasks', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
+const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', tasks:'Tasks', habits:'Habits', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -787,6 +840,7 @@ function goTo(page) {
   if(page==='networth') renderNetWorth();
   if(page==='debt')     renderDebtList();
   if(page==='tasks')    renderTasks();
+  if(page==='habits')   renderHabits();
   if(page==='notes')    renderNotes();
   if(page==='report')   { buildReportMonths(); renderReport(); }
 }
@@ -1232,6 +1286,150 @@ function renderTaskChart(tasks) {
   const counts = days.map(day => tasks.filter(t=>t.completed_at && localISO(new Date(t.completed_at))===day).length);
   const labels = days.map(day => { const [y,m,d]=day.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
   taskChart = new Chart(document.getElementById('taskChart'), { type:'bar', data:{ labels, datasets:[{ label:'Completed', data:counts, backgroundColor:'rgba(201,168,76,0.5)', borderColor:'#c9a84c', borderWidth:1, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ ticks:{color:'#5a5855',font:{size:10}}, grid:{display:false} }, y:{ beginAtZero:true, ticks:{color:'#5a5855',font:{size:11},stepSize:1}, grid:{color:'rgba(255,255,255,0.04)'} } } } });
+}
+
+// ════════════════════════════════
+//   HABITS
+// ════════════════════════════════
+function buildHabitColorPicker() {
+  const el = document.getElementById('habit-color-picker');
+  if(!selectedHabitColor) selectedHabitColor = CAT_COLORS[0];
+  el.innerHTML = CAT_COLORS.map(c => `<div class="color-swatch${c===selectedHabitColor?' selected':''}" style="background:${c};" onclick="selectHabitColor('${c}')"></div>`).join('');
+}
+
+function selectHabitColor(c) { selectedHabitColor = c; buildHabitColorPicker(); }
+
+async function addHabit() {
+  const name = document.getElementById('habit-name').value.trim();
+  if(!name) { toast('Enter a habit name.'); return; }
+  const row = { user_id:currentUser.id, name, color:selectedHabitColor||CAT_COLORS[0] };
+  const { data, error } = await db.from('habits').insert(row).select().single();
+  if(error) { toast('Error: '+error.message); return; }
+  state.habits.push(data);
+  document.getElementById('habit-name').value='';
+  renderHabits(); toast('Habit added ◆');
+}
+
+async function deleteHabit(id) {
+  await db.from('habits').delete().eq('id', id);
+  state.habits = state.habits.filter(h=>h.id!==id);
+  state.habit_logs = state.habit_logs.filter(l=>l.habit_id!==id);
+  renderHabits();
+}
+
+async function toggleHabitToday(id) {
+  const todayISO = localISO(new Date());
+  const existing = state.habit_logs.find(l=>l.habit_id===id && l.date===todayISO);
+  if(existing) {
+    await db.from('habit_logs').delete().eq('id', existing.id);
+    state.habit_logs = state.habit_logs.filter(l=>l.id!==existing.id);
+  } else {
+    const { data, error } = await db.from('habit_logs').insert({ user_id:currentUser.id, habit_id:id, date:todayISO }).select().single();
+    if(error) { toast('Error: '+error.message); return; }
+    state.habit_logs.push(data);
+  }
+  renderHabits();
+}
+
+function habitLogDates(habitId) {
+  return state.habit_logs.filter(l=>l.habit_id===habitId).map(l=>l.date);
+}
+
+function habitCurrentStreak(dates) {
+  const set = new Set(dates);
+  let streak = 0;
+  const d = new Date();
+  if(!set.has(localISO(d))) d.setDate(d.getDate()-1);
+  while(set.has(localISO(d))) { streak++; d.setDate(d.getDate()-1); }
+  return streak;
+}
+
+function habitLongestStreak(dates) {
+  const sorted = [...new Set(dates)].sort();
+  let longest=0, run=0, prev=null;
+  sorted.forEach(dstr => {
+    if(prev) {
+      const diff = Math.round((new Date(dstr+'T12:00:00') - new Date(prev+'T12:00:00'))/86400000);
+      run = diff===1 ? run+1 : 1;
+    } else run = 1;
+    longest = Math.max(longest, run);
+    prev = dstr;
+  });
+  return longest;
+}
+
+function habitMissedYesterday(habit, dates) {
+  const today = new Date(); const todayISO = localISO(today);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const yISO = localISO(yesterday);
+  const createdISO = localISO(new Date(habit.created_at));
+  if(createdISO >= yISO) return false;
+  const set = new Set(dates);
+  return !set.has(yISO) && !set.has(todayISO);
+}
+
+function buildHeatmap(dates, color) {
+  const set = new Set(dates);
+  const days = [];
+  const now = new Date();
+  for(let i=97;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
+  return `<div class="heatmap">${days.map(day => `<div class="heatmap-cell" style="background:${set.has(day)?color:'var(--bg4)'};" title="${day}"></div>`).join('')}</div>`;
+}
+
+function renderHabits() {
+  const habits = state.habits;
+  const todayISO = localISO(new Date());
+
+  document.getElementById('habit-count').textContent = habits.length;
+
+  const doneToday = habits.filter(h => state.habit_logs.some(l=>l.habit_id===h.id && l.date===todayISO));
+  document.getElementById('habit-today').textContent = `${doneToday.length}/${habits.length}`;
+
+  let bestStreak = 0;
+  habits.forEach(h => { const s = habitCurrentStreak(habitLogDates(h.id)); if(s>bestStreak) bestStreak=s; });
+  document.getElementById('habit-best-streak').textContent = bestStreak;
+
+  const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate()-29);
+  const thirtyAgoISO = localISO(thirtyAgo);
+  const logsInWindow = state.habit_logs.filter(l=>l.date>=thirtyAgoISO && l.date<=todayISO);
+  const possible = habits.length*30;
+  document.getElementById('habit-consistency').textContent = (possible>0 ? Math.round((logsInWindow.length/possible)*100) : 0)+'%';
+
+  const el = document.getElementById('habits-list');
+  if(!habits.length) {
+    el.innerHTML = '<div class="empty"><div class="big">◆</div>No habits yet. Add one above to start your streak.</div>';
+  } else {
+    el.innerHTML = habits.map(h => {
+      const dates = habitLogDates(h.id);
+      const current = habitCurrentStreak(dates);
+      const longest = habitLongestStreak(dates);
+      const done = state.habit_logs.some(l=>l.habit_id===h.id && l.date===todayISO);
+      const warn = !done && habitMissedYesterday(h, dates);
+      return `<div class="habit-card">
+        <div class="habit-top">
+          <div class="habit-id"><span class="habit-dot" style="background:${h.color};"></span><span class="habit-name">${h.name}</span>${warn?'<span class="habit-warn">Don’t miss twice</span>':''}</div>
+          <div class="habit-actions">
+            <div class="habit-stats"><div><span>Streak: </span><strong>${current}</strong></div><div><span>Best: </span><strong>${longest}</strong></div></div>
+            <button class="habit-mark${done?' done':''}" onclick="toggleHabitToday(${h.id})">${done?'✓ Done today':'Mark today'}</button>
+            <button class="tx-del" onclick="deleteHabit(${h.id})">✕</button>
+          </div>
+        </div>
+        ${buildHeatmap(dates, h.color)}
+      </div>`;
+    }).join('');
+  }
+  renderHabitChart(habits);
+}
+
+function renderHabitChart(habits) {
+  if(habitChart){habitChart.destroy();habitChart=null;}
+  const days = [];
+  const now = new Date();
+  for(let i=13;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
+  const total = habits.length;
+  const pct = days.map(day => total>0 ? Math.round((state.habit_logs.filter(l=>l.date===day).length/total)*100) : 0);
+  const labels = days.map(day => { const [y,m,d]=day.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+  habitChart = new Chart(document.getElementById('habitChart'), { type:'bar', data:{ labels, datasets:[{ label:'Check-in rate', data:pct, backgroundColor:'rgba(201,168,76,0.5)', borderColor:'#c9a84c', borderWidth:1, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}}, scales:{ x:{ ticks:{color:'#5a5855',font:{size:10}}, grid:{display:false} }, y:{ beginAtZero:true, max:100, ticks:{color:'#5a5855',font:{size:11},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,0.04)'} } } } });
 }
 
 // ════════════════════════════════
