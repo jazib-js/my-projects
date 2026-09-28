@@ -18,6 +18,7 @@
   --red:#e25555; --red-dim:rgba(226,85,85,0.12);
   --blue:#5b9cf6; --blue-dim:rgba(91,156,246,0.12);
   --purple:#a855f7; --purple-dim:rgba(168,85,247,0.12);
+  --idle:#77746f;
   --radius:12px; --radius-sm:8px;
   --font:'DM Sans',sans-serif; --font-serif:'Playfair Display',serif;
 }
@@ -137,24 +138,244 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .debt-stats { display:flex; gap:16px; font-size:11px; color:var(--text3); margin-top:8px; }
 .debt-stats strong { color:var(--text); }
 
-/* ── HABITS ── */
-.habit-card { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; }
-.habit-top { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px; flex-wrap:wrap; }
-.habit-id { display:flex; align-items:center; gap:10px; }
-.habit-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.habit-name { font-size:15px; font-weight:500; }
-.habit-actions { display:flex; align-items:center; gap:14px; }
-.habit-stats { display:flex; gap:14px; font-size:11px; color:var(--text3); }
-.habit-stats strong { color:var(--text); }
-.habit-mark { padding:7px 14px; border-radius:var(--radius-sm); font-size:12.5px; font-family:var(--font); cursor:pointer; border:1px solid var(--border2); background:transparent; color:var(--text2); transition:all 0.15s; }
-.habit-mark:hover { color:var(--text); }
-.habit-mark.done { background:var(--green-dim); border-color:rgba(76,175,110,0.3); color:var(--green); }
-.habit-warn { font-size:11px; color:var(--red); background:var(--red-dim); padding:2px 8px; border-radius:20px; }
-.heatmap { display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,11px); gap:3px; overflow-x:auto; padding-bottom:2px; }
-.heatmap-cell { width:11px; height:11px; border-radius:2px; }
-.color-picker { display:flex; gap:8px; flex-wrap:wrap; }
-.color-swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.15s; }
-.color-swatch.selected { border-color:var(--text); transform:scale(1.12); }
+/* ── PRODUCTIVITY (scoped to .prod pages) ── */
+.prod .gold{color:var(--gold);}
+.prod .green{color:var(--green);}
+.prod .red{color:var(--red);}
+.prod .blue{color:var(--blue);}
+.prod .muted{color:var(--text3);}
+.prod button, .prod input, .prod select, .prod textarea{font-family:inherit;color:inherit;}
+.prod :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.prod .seg{display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;gap:2px;flex-wrap:wrap;}
+.prod .seg button{background:none;border:none;color:var(--text2);font-size:12.5px;padding:6px 14px;border-radius:6px;cursor:pointer;}
+.prod .seg button:hover{color:var(--text);}
+.prod .seg button.active{background:var(--bg4);color:var(--gold);}
+.prod details.plain > summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.prod details.plain > summary::-webkit-details-marker{display:none;}
+.prod details.plain > summary::after{content:'Show';font-size:12px;color:var(--text3);}
+.prod details.plain[open] > summary::after{content:'Hide';}
+.prod details.plain[open] > summary{margin-bottom:16px;}
+.prod .targets-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:14px;}
+.prod .targets-form .field{width:140px;}
+.prod .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.prod .section{margin-bottom:24px;}
+.prod .section-eyebrow{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.prod .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;}
+.prod .section-title{font-size:15px;font-weight:500;}
+.prod .section-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.prod .link{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;white-space:nowrap;padding:2px 0;}
+.prod .link:hover{color:var(--gold);}
+.prod .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.prod .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.prod .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.prod .kpi-grid.three{grid-template-columns:repeat(3,1fr);}
+.prod .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.prod .kpi-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.prod .kpi-val{font-family:var(--font-serif);font-size:24px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums;}
+.prod .kpi-val small{font-family:var(--font);font-size:13px;color:var(--text3);font-weight:400;}
+.prod .kpi-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.prod .trend{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 9px;border-radius:20px;width:fit-content;}
+.prod .trend.up{color:var(--green);background:var(--green-dim);}
+.prod .trend.down{color:var(--red);background:var(--red-dim);}
+.prod .trend.flat{color:var(--text2);background:var(--bg4);}
+.prod .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;color:var(--text2);}
+.prod .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.prod .legend i.line{width:14px;height:2px;border-radius:1px;}
+.prod .legend i.dash{width:14px;height:0;border-top:1.5px dashed var(--text2);border-radius:0;background:none;}
+.prod .split-bar{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden;background:var(--bg4);margin:16px 0 12px;}
+.prod .split-bar span{display:block;height:100%;min-width:3px;}
+.prod .thin-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prod .thin-bar span{display:block;height:100%;background:var(--gold);border-radius:2px;}
+.prod .bar{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.prod .bar span{display:block;height:100%;border-radius:4px;}
+.prod .bar-row{display:flex;flex-direction:column;gap:6px;}
+.prod .bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--text2);}
+.prod .bar-top strong{font-family:var(--font-serif);font-size:16px;color:var(--text);font-weight:500;font-variant-numeric:tabular-nums;}
+.prod .bar-top strong small{font-family:var(--font);font-size:12px;color:var(--text3);font-weight:400;}
+.prod .empty{text-align:center;padding:30px 16px;color:var(--text3);font-size:13px;border:1px dashed var(--border2);border-radius:var(--radius);}
+.prod .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:background .15s,color .15s;}
+.prod .btn-gold{background:var(--gold);color:#0d0d0f;}
+.prod .btn-gold:hover{background:#d4b563;}
+.prod .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.prod .btn-ghost:hover{color:var(--text);}
+.prod .q-card{display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%;transition:border-color .15s;}
+.prod .q-card:hover{border-color:var(--border2);}
+.prod .q-kind{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
+.prod .q-ask{font-size:13px;color:var(--text2);}
+.prod .q-num{font-family:var(--font-serif);font-size:42px;line-height:1.05;color:var(--gold);font-variant-numeric:tabular-nums;margin-top:4px;}
+.prod .q-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:8px;}
+.prod .q-sentence{font-size:12.5px;color:var(--text2);line-height:1.55;}
+.prod .spark-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
+.prod .spark{width:96px;height:32px;}
+.prod .spark-label{font-size:10px;color:var(--text3);}
+.prod .rings{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.prod .ring{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;border-radius:var(--radius-sm);}
+.prod .ring.today{background:var(--bg3);}
+.prod .ring svg{width:64px;height:64px;max-width:100%;}
+.prod .ring-day{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.prod .ring.today .ring-day{color:var(--gold);}
+.prod .ring-meta{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums;text-align:center;}
+.prod .chart-box{position:relative;height:230px;}
+.prod .today-wrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+.prod .today-ring{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.prod .today-ring svg{width:120px;height:120px;}
+.prod .today-list{flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px;}
+.prod .mini-task{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);}
+.prod .mini-name{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod .mini-name.done{color:var(--text3);text-decoration:line-through;}
+.prod .visual-foot{margin-top:14px;}
+.prod .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.prod .hero-num{font-family:var(--font-serif);font-size:58px;line-height:1;color:var(--gold);font-weight:400;font-variant-numeric:tabular-nums;}
+.prod .hero-label{font-size:13px;color:var(--text2);margin:8px 0 10px;}
+.prod .hero-sentence{font-size:13.5px;color:var(--text2);max-width:36ch;line-height:1.7;}
+.prod .hero-sentence strong{color:var(--text);font-weight:500;}
+.prod .dd-num{font-family:var(--font-serif);font-size:44px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums;}
+.prod .dd-foot{font-size:11.5px;color:var(--text3);margin-top:12px;line-height:1.6;}
+.prod .late-list{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:6px;}
+.prod .late-row{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--text2);}
+.prod .late-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod .mini-label{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.prod .status-total{display:flex;align-items:baseline;gap:8px;}
+.prod .status-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--text2);padding:7px 0;border-bottom:1px solid var(--border);}
+.prod .status-row:last-child{border-bottom:none;}
+.prod .status-row strong{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums;}
+.prod .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.prod .status-row .status-dot{margin-right:8px;vertical-align:middle;}
+.prod .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.prod .chips{display:flex;gap:6px;flex-wrap:wrap;}
+.prod .chip{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;}
+.prod .chip:hover{color:var(--text);}
+.prod .chip.active{color:var(--gold);border-color:rgba(201,168,76,.35);background:var(--gold-dim);}
+.prod .chip .count{color:var(--text3);margin-left:4px;font-variant-numeric:tabular-nums;}
+.prod .task-list{display:flex;flex-direction:column;gap:8px;}
+.prod .task{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);transition:border-color .15s;}
+.prod .task:hover, .prod .task.open{border-color:var(--border2);}
+.prod .task-row{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;}
+.prod .check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:none;cursor:pointer;color:#0d0d0f;font-size:11px;line-height:1;padding:0;}
+.prod .check:hover{border-color:var(--green);}
+.prod .check.done{background:var(--green);border-color:var(--green);}
+.prod .check.progress{border-color:var(--gold);}
+.prod .check.progress::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.prod .task-main{flex:1;min-width:0;}
+.prod .task-name{font-size:13.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod .task.completed .task-name{color:var(--text3);text-decoration:line-through;}
+.prod .task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text3);margin-top:4px;}
+.prod .dl{font-size:11px;padding:1px 8px;border-radius:20px;white-space:nowrap;}
+.prod .dl.ontime{color:var(--green);background:var(--green-dim);}
+.prod .dl.late, .prod .dl.overdue{color:var(--red);background:var(--red-dim);}
+.prod .dl.today{color:var(--gold);background:var(--gold-dim);}
+.prod .dl.soon, .prod .dl.none{color:var(--text2);background:var(--bg4);}
+.prod .dl.latec{color:#e98a8a;background:rgba(226,85,85,0.08);border:1px solid rgba(226,85,85,0.25);}
+.prod .flabel{font-size:12px;color:var(--text2);}
+.prod .seg label.radio{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text2);padding:6px 12px;border-radius:6px;cursor:pointer;}
+.prod .seg label.radio:has(input:checked){background:var(--bg4);color:var(--gold);}
+.prod .seg label.radio input{accent-color:var(--gold);}
+.prod .daypick{display:flex;gap:6px;flex-wrap:wrap;}
+.prod .daychk{position:relative;cursor:pointer;}
+.prod .daychk input{position:absolute;opacity:0;width:1px;height:1px;}
+.prod .daychk span{display:inline-block;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);font-size:12px;color:var(--text2);}
+.prod .daychk input:checked + span{background:var(--gold-dim);color:var(--gold);border-color:rgba(201,168,76,.35);}
+.prod .daychk input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px;}
+.prod .nudge{font-size:12.5px;color:var(--gold);background:var(--gold-dim);padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:12px;line-height:1.6;}
+.prod .arch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.prod .arch-row:last-child{border-bottom:none;}
+.prod .arch-name{font-size:13.5px;color:var(--text2);}
+.prod .arch-actions{display:flex;gap:14px;}
+.prod .task-detail{padding:2px 14px 14px 46px;display:flex;flex-direction:column;gap:12px;}
+.prod .task-notes{font-size:12.5px;color:var(--text2);line-height:1.7;max-width:65ch;}
+.prod .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.prod .detail-grid div{font-size:11px;color:var(--text3);}
+.prod .detail-grid strong{display:block;color:var(--text);font-weight:400;font-size:12.5px;}
+.prod .detail-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.prod .del-btn{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;}
+.prod .del-btn:hover{color:var(--red);}
+.prod .form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.prod .field{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.prod .field.full{grid-column:1/-1;}
+.prod .field label{font-size:12px;color:var(--text2);}
+.prod .field input, .prod .field select, .prod .field textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:9px 11px;outline:none;width:100%;}
+.prod .field input:focus, .prod .field select:focus, .prod .field textarea:focus{border-color:var(--border2);}
+.prod .field select option{background:var(--bg3);}
+.prod .field textarea{resize:vertical;min-height:60px;}
+.prod .form-actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;}
+.prod .add-form{margin-bottom:14px;}
+.prod .habit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.prod .habit{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:14px;}
+.prod .habit-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.prod .habit-name{font-size:15px;font-weight:500;background:none;border:none;cursor:pointer;text-align:left;padding:0;}
+.prod .habit-name:hover{color:var(--gold);}
+.prod .habit-target{font-size:12px;color:var(--text3);margin-top:2px;}
+.prod .habit-pct{font-family:var(--font-serif);font-size:26px;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums;text-align:right;}
+.prod .habit-pct-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;text-align:right;margin-top:5px;}
+.prod .week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.prod .day-cell{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;padding:2px 0;border-radius:6px;}
+.prod .day-letter{font-size:10.5px;color:var(--text3);}
+.prod .day-mark{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:1.5px solid var(--border2);color:var(--text3);}
+.prod .day-mark.done{background:var(--green);border-color:var(--green);color:#0d0d0f;}
+.prod .day-mark.miss{border-color:rgba(226,85,85,.45);color:var(--red);}
+.prod .day-mark.rest, .prod .day-mark.future{border-style:dashed;border-color:var(--border2);}
+.prod button.day-cell{cursor:pointer;}
+.prod .day-cell.today .day-letter{color:var(--gold);}
+.prod .day-cell.today .day-mark.pending{border-color:var(--gold);color:var(--gold);}
+.prod button.day-cell:hover .day-mark.pending{background:var(--gold-dim);}
+.prod .habit-stats{display:flex;gap:6px 18px;font-size:12px;color:var(--text3);flex-wrap:wrap;}
+.prod .habit-stats strong{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums;}
+.prod .hint{font-size:11.5px;color:var(--text3);}
+.prod .heatmap{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;width:100%;max-width:340px;}
+.prod .heatmap.compact{max-width:220px;gap:4px;}
+.prod .hm-head{font-size:10px;color:var(--text3);text-align:center;text-transform:uppercase;}
+.prod .hm-cell{aspect-ratio:1;border-radius:4px;background:var(--bg4);min-width:0;}
+.prod .ov-habits > *, .prod .hm-layout > *, .prod .week-side > *{min-width:0;}
+.prod .hm-cell.empty{background:transparent;}
+.prod .hm-cell.future{background:transparent;border:1px dashed var(--border2);}
+.prod .hm-cell.today{outline:1.5px solid var(--text2);outline-offset:1px;}
+.prod .hm-legend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);margin-top:12px;}
+.prod .hm-legend span.sw{width:12px;height:12px;border-radius:3px;display:inline-block;}
+.prod .hm-layout{display:grid;grid-template-columns:minmax(200px,340px) 1fr;gap:28px;align-items:start;}
+.prod .hm-info{display:flex;flex-direction:column;gap:14px;}
+.prod .ov-habits{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:24px;align-items:start;}
+.prod .habit-list{display:flex;flex-direction:column;gap:12px;}
+.prod .hl-row{background:none;border:none;text-align:left;cursor:pointer;padding:0;width:100%;}
+.prod .hl-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text2);margin-bottom:5px;gap:8px;}
+.prod .hl-top strong{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums;}
+.prod .hl-row:hover .hl-top span{color:var(--gold);}
+.prod .meals{display:flex;flex-direction:column;gap:8px;}
+.prod .meal{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);}
+.prod .meal-slot{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;width:72px;flex-shrink:0;}
+.prod .meal-name{flex:1;min-width:0;background:none;border:none;text-align:left;font-size:13.5px;color:var(--text);cursor:pointer;padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod .meal-name.pending{color:var(--text3);}
+.prod .meal-name:hover{color:var(--gold);}
+.prod .meal-nums{font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.prod .meal-form{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px;}
+.prod .nutri{display:flex;flex-direction:column;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+.prod .meal-week{display:grid;grid-template-columns:minmax(56px,auto) repeat(3,1fr);gap:10px 8px;align-items:center;max-width:300px;}
+.prod .mw-head{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;text-align:center;}
+.prod .mw-day{font-size:12.5px;color:var(--text2);}
+.prod .mw-day.today{color:var(--gold);}
+.prod .mw-dot{width:16px;height:16px;border-radius:50%;justify-self:center;border:1.5px solid var(--border2);}
+.prod .mw-dot.done{background:var(--green);border-color:var(--green);}
+.prod .mw-dot.miss{border-color:rgba(226,85,85,.5);}
+.prod .mw-dot.pending{border-style:dashed;}
+.prod .week-side{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;}
+.prod .plain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 32px;}
+.prod .plain-term{font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px;}
+.prod .plain-def{font-size:12.5px;color:var(--text2);line-height:1.75;max-width:62ch;}
+@media(max-width:1040px){.prod .kpi-grid{grid-template-columns:repeat(2,1fr);}
+.prod .grid-3, .prod .grid-2, .prod .habit-grid, .prod .plain-grid{grid-template-columns:1fr;}}
+@media(max-width:720px){.prod .kpi-grid.three{grid-template-columns:1fr;}
+.prod .form{grid-template-columns:1fr;}
+.prod .rings{gap:2px;}
+.prod .ring svg{width:40px;height:40px;}
+.prod .ring-meta{font-size:10px;}
+.prod .hero-num{font-size:48px;}
+.prod .task-detail{padding-left:14px;}
+.prod .hm-layout, .prod .ov-habits, .prod .week-side{grid-template-columns:1fr;}
+.prod .meal-slot{width:auto;}}
+.pseg{display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;gap:2px;}
+.pseg button{background:none;border:none;color:var(--text2);font-size:12.5px;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:var(--font);}
+.pseg button:hover{color:var(--text);}
+.pseg button.active{background:var(--bg4);color:var(--gold);}
+
 
 /* ── OTHER COMPONENTS ── */
 .ai-output { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-top:16px; min-height:80px; font-size:13.5px; line-height:1.75; color:var(--text2); }
@@ -187,13 +408,6 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .budget-text { font-size:12px; color:var(--text3); width:90px; text-align:right; flex-shrink:0; }
 .divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
 .recur-item,.upcoming-item,.nw-item,.task-item { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; }
-.task-check { width:20px; height:20px; border-radius:6px; border:1.5px solid var(--border2); flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; color:#0d0d0f; transition:all 0.15s; }
-.task-check.done { background:var(--green); border-color:var(--green); }
-.task-info { flex:1; min-width:0; }
-.task-name { font-size:13.5px; color:var(--text); }
-.task-name.done { text-decoration:line-through; color:var(--text3); }
-.task-meta { font-size:11px; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:6px; }
-.task-item.overdue .task-meta { color:var(--red); }
 .recur-badge { width:36px; height:36px; border-radius:8px; background:var(--blue-dim); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--blue); flex-shrink:0; font-weight:500; }
 .recur-info,.upcoming-info,.nw-item-info { flex:1; min-width:0; }
 .recur-name,.upcoming-name,.nw-item-name { font-size:13.5px; color:var(--text); }
@@ -286,8 +500,10 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
       <div class="nav-item" onclick="goTo('debt')"><span class="nav-icon">⊗</span> Debt Tracker</div>
       <div class="nav-item" onclick="goTo('networth')"><span class="nav-icon">◇</span> Net Worth</div>
       <div class="nav-group-label">Productivity</div>
+      <div class="nav-item" onclick="goTo('productivity')"><span class="nav-icon">✧</span> Overview</div>
       <div class="nav-item" onclick="goTo('tasks')"><span class="nav-icon">☑</span> Tasks</div>
       <div class="nav-item" onclick="goTo('habits')"><span class="nav-icon">◆</span> Habits</div>
+      <div class="nav-item" onclick="goTo('body')"><span class="nav-icon">◐</span> Body</div>
       <div class="nav-group-label">Reflect</div>
       <div class="nav-item" onclick="goTo('notes')"><span class="nav-icon">✎</span> Journal</div>
       <div class="nav-item" onclick="goTo('advisor')"><span class="nav-icon">✦</span> AI Advisor</div>
@@ -311,6 +527,9 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
       <select id="month-filter" onchange="renderAll()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);">
         <option value="all">All time</option>
       </select>
+      <div class="pseg" id="prod-period" role="group" aria-label="Time range" style="display:none;">
+        <button data-action="period" data-period="today">Today</button><button data-action="period" data-period="week" class="active">Week</button><button data-action="period" data-period="month">Month</button>
+      </div>
     </div>
 
     <div class="content">
@@ -558,58 +777,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
         </div>
       </div>
 
-      <!-- TASKS -->
-      <div class="page" id="page-tasks">
-        <div class="kpi-grid">
-          <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val gold" id="task-pending">0</div><div class="kpi-sub">tasks open</div></div>
-          <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val red" id="task-overdue">0</div><div class="kpi-sub">past deadline</div></div>
-          <div class="kpi"><div class="kpi-label">Completed this week</div><div class="kpi-val green" id="task-week">0</div><div class="kpi-sub">last 7 days</div></div>
-          <div class="kpi"><div class="kpi-label">Total completed</div><div class="kpi-val blue" id="task-total">0</div><div class="kpi-sub">all time</div></div>
-        </div>
-        <div class="card" style="margin-bottom:20px;">
-          <div class="section-head"><div><div class="section-title">Progress</div><div class="section-sub">Tasks completed per day, last 14 days</div></div></div>
-          <div class="chart-wrap" style="height:180px;"><canvas id="taskChart"></canvas></div>
-        </div>
-        <div class="two-col">
-          <div class="card" style="align-self:start;">
-            <div class="section-head"><div class="section-title">Add task</div></div>
-            <div class="form-group" style="margin-bottom:14px;"><label>Task name</label><input type="text" id="task-name" placeholder="e.g. Finish client report" onkeydown="if(event.key==='Enter')addTask()"></div>
-            <div class="form-row">
-              <div class="form-group"><label>Deadline (optional)</label><input type="date" id="task-deadline"></div>
-              <div class="form-group"><label>Priority</label><select id="task-priority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
-            </div>
-            <button class="btn btn-gold" onclick="addTask()">+ Add task</button>
-          </div>
-          <div><div id="task-list"></div></div>
-        </div>
-      </div>
-
-      <!-- HABITS -->
-      <div class="page" id="page-habits">
-        <div class="kpi-grid">
-          <div class="kpi"><div class="kpi-label">Habits tracked</div><div class="kpi-val gold" id="habit-count">0</div><div class="kpi-sub">active habits</div></div>
-          <div class="kpi"><div class="kpi-label">Today</div><div class="kpi-val green" id="habit-today">0/0</div><div class="kpi-sub">checked in</div></div>
-          <div class="kpi"><div class="kpi-label">Best streak</div><div class="kpi-val blue" id="habit-best-streak">0</div><div class="kpi-sub">days, current</div></div>
-          <div class="kpi"><div class="kpi-label">Consistency</div><div class="kpi-val gold" id="habit-consistency">0%</div><div class="kpi-sub">last 30 days</div></div>
-        </div>
-        <div class="card" style="margin-bottom:20px;">
-          <div class="section-head"><div><div class="section-title">Progress</div><div class="section-sub">Overall check-in rate, last 14 days</div></div></div>
-          <div class="chart-wrap" style="height:180px;"><canvas id="habitChart"></canvas></div>
-        </div>
-        <div class="two-col" style="margin-bottom:20px;">
-          <div class="card" style="align-self:start;">
-            <div class="section-head"><div class="section-title">Add habit</div></div>
-            <div class="form-group" style="margin-bottom:14px;"><label>Habit name</label><input type="text" id="habit-name" placeholder="e.g. Read 10 pages" onkeydown="if(event.key==='Enter')addHabit()"></div>
-            <div class="form-group" style="margin-bottom:14px;"><label>Color</label><div class="color-picker" id="habit-color-picker"></div></div>
-            <button class="btn btn-gold" onclick="addHabit()">+ Add habit</button>
-          </div>
-          <div class="card" style="align-self:start;">
-            <div class="section-head"><div class="section-title">How it works</div></div>
-            <p style="font-size:12.5px;color:var(--text2);line-height:1.8;">Mark each habit done once a day — no editing past days, so the streak stays honest. Miss a day and you'll see a quiet warning: Atomic Habits' rule is never miss twice in a row.</p>
-          </div>
-        </div>
-        <div id="habits-list"></div>
-      </div>
+      <!-- PRODUCTIVITY (rendered by Prod) -->
+      <div class="page prod" id="page-productivity"></div>
+      <div class="page prod" id="page-tasks"></div>
+      <div class="page prod" id="page-habits"></div>
+      <div class="page prod" id="page-body"></div>
 
       <!-- REPORT CARD -->
       <div class="page" id="page-report">
@@ -662,12 +834,11 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[] };
+let state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[], meals:[], settings:null };
 
 const CATS = ['Food & Dining','Transport','Shopping','Entertainment','Health','Bills & Utilities','Education','Rent','Personal Care','Other'];
 const CAT_COLORS = ['#c9a84c','#5b9cf6','#4caf6e','#e25555','#a855f7','#f97316','#06b6d4','#ec4899','#84cc16','#9d9a95'];
-let cashChart = null, catChart = null, taskChart = null, habitChart = null;
-let selectedHabitColor = null;
+let cashChart = null, catChart = null;
 
 // ════════════════════════════════
 //   BOOT
@@ -709,7 +880,6 @@ function initUI() {
   buildBudgetInputs();
   buildReportMonths();
   buildNotePicker();
-  buildHabitColorPicker();
   renderAll();
 }
 
@@ -718,7 +888,8 @@ function initUI() {
 // ════════════════════════════════
 async function loadAllData() {
   const uid = currentUser.id;
-  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts, tsk, hab, hlg] = await Promise.all([
+  const mealsSince = localISO(new Date(Date.now() - 400*86400000));
+  const [inc, exp, gls, bud, rec, upc, ast, lib, dbt, nts, tsk, hab, hlg, mls, stg] = await Promise.all([
     db.from('income').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('expenses').select('*').eq('user_id', uid).order('date', { ascending: false }),
     db.from('goals').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
@@ -732,6 +903,8 @@ async function loadAllData() {
     db.from('tasks').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
     db.from('habits').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
     db.from('habit_logs').select('*').eq('user_id', uid),
+    db.from('meals').select('*').eq('user_id', uid).gte('date', mealsSince),
+    db.from('user_settings').select('*').eq('user_id', uid).maybeSingle(),
   ]);
   state.income      = inc.data  || [];
   state.expenses    = exp.data  || [];
@@ -748,6 +921,8 @@ async function loadAllData() {
   state.tasks       = tsk.data  || [];
   state.habits      = hab.data  || [];
   state.habit_logs  = hlg.data  || [];
+  state.meals       = mls.data  || [];
+  state.settings    = stg.data  || null;
 }
 
 // ════════════════════════════════
@@ -802,7 +977,7 @@ async function signOut() {
 
 function resetAndShowAuth() {
   currentUser = null;
-  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[] };
+  state = { income:[], expenses:[], goals:[], budgets:{}, recurring:[], upcoming:[], assets:[], liabilities:[], debts:[], notes:{}, tasks:[], habits:[], habit_logs:[], meals:[], settings:null };
   document.getElementById('app').style.display = 'none';
   showAuthScreen();
 }
@@ -826,7 +1001,7 @@ function hideLoading() {
 // ════════════════════════════════
 //   NAVIGATION
 // ════════════════════════════════
-const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', tasks:'Tasks', habits:'Habits', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
+const PAGES = { dashboard:'Dashboard', income:'Income', expenses:'Expenses', recurring:'Recurring', upcoming:'Upcoming', savings:'Savings Goals', budget:'Budget Planner', debt:'Debt Tracker', networth:'Net Worth', productivity:'Personal Progress', tasks:'Tasks', habits:'Habits', body:'Body', report:'Report Card', notes:'Journal', advisor:'AI Advisor' };
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -839,8 +1014,10 @@ function goTo(page) {
   if(page==='upcoming') renderUpcoming();
   if(page==='networth') renderNetWorth();
   if(page==='debt')     renderDebtList();
-  if(page==='tasks')    renderTasks();
-  if(page==='habits')   renderHabits();
+  const prodPage = Prod.isPage(page);
+  document.getElementById('month-filter').style.display = prodPage ? 'none' : '';
+  document.getElementById('prod-period').style.display = prodPage ? '' : 'none';
+  if(prodPage) Prod.show(page);
   if(page==='notes')    renderNotes();
   if(page==='report')   { buildReportMonths(); renderReport(); }
 }
@@ -1206,231 +1383,860 @@ function renderNetWorth() {
 }
 
 // ════════════════════════════════
-//   TASKS
+//   PRODUCTIVITY — Tasks · Habits · Body
 // ════════════════════════════════
-async function addTask() {
-  const name = document.getElementById('task-name').value.trim();
-  if(!name) { toast('Enter a task name.'); return; }
-  const row = { user_id:currentUser.id, name, deadline:document.getElementById('task-deadline').value||null, priority:document.getElementById('task-priority').value, done:false };
-  const { data, error } = await db.from('tasks').insert(row).select().single();
-  if(error) { toast('Error: '+error.message); return; }
-  state.tasks.unshift(data);
-  document.getElementById('task-name').value=''; document.getElementById('task-deadline').value='';
-  renderTasks(); toast('Task added ☑');
-}
+const Prod = (() => {
+  const DAY = 86400000;
+  const parse = s => new Date(s+'T12:00:00');
+  const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return localISO(d); };
+  const diffDays = (a,b) => Math.round((parse(a)-parse(b))/DAY);
+  let TODAY = localISO(new Date());
+  const weekday = s => (parse(s).getDay()+6)%7;
+  const weekStart = s => addDays(s,-weekday(s));
+  const monthStart = s => s.slice(0,8)+'01';
+  const fmtDay = s => parse(s).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const fmtPct = v => v===null || v===undefined ? '—' : Math.round(v*100)+'%';
+  const fmtN = n => Math.round(n).toLocaleString('en-US');
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function daysIn(r){ const out=[]; for(let d=r.start; d<=r.end; d=addDays(d,1)) out.push(d); return out; }
+  const inRange = (s,r) => s>=r.start && s<=r.end;
 
-async function toggleTask(id) {
-  const t = state.tasks.find(t=>t.id===id); if(!t) return;
-  const done = !t.done;
-  const completed_at = done ? new Date().toISOString() : null;
-  const { error } = await db.from('tasks').update({ done, completed_at }).eq('id', id);
-  if(error) { toast('Error: '+error.message); return; }
-  t.done = done; t.completed_at = completed_at;
-  renderTasks();
-}
+  const TASK_CATS = ['Work','Learning','Personal','Health','Finance','Relationships','Other'];
+  const SLOTS = [['breakfast','Breakfast'],['lunch','Lunch'],['dinner','Dinner']];
+  const slotName = k => SLOTS.find(s => s[0]===k)[1];
+  const TITLES = {productivity:'Personal Progress', tasks:'Tasks', habits:'Habits', body:'Body'};
 
-async function deleteTask(id) {
-  await db.from('tasks').delete().eq('id', id);
-  state.tasks = state.tasks.filter(t=>t.id!==id);
-  renderTasks();
-}
+  const P = {page:'productivity', period:'week', taskFilter:'open', openTask:null, showAdd:false, hmHabit:'all', mealEdit:null, showHabitForm:false, editTargets:false};
+  let chart = null;
 
-function renderTasks() {
-  const tasks = state.tasks;
-  const todayISO = localISO(new Date());
-  const pending = tasks.filter(t=>!t.done);
-  const overdue = pending.filter(t=>t.deadline && t.deadline < todayISO);
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-6);
-  const completedThisWeek = tasks.filter(t=>t.done && t.completed_at && new Date(t.completed_at) >= weekAgo);
-  const totalCompleted = tasks.filter(t=>t.done);
-
-  document.getElementById('task-pending').textContent = pending.length;
-  document.getElementById('task-overdue').textContent = overdue.length;
-  document.getElementById('task-week').textContent = completedThisWeek.length;
-  document.getElementById('task-total').textContent = totalCompleted.length;
-
-  const priorityRank = { High:0, Medium:1, Low:2 };
-  const sorted = [...tasks].sort((a,b) => {
-    if(a.done !== b.done) return a.done ? 1 : -1;
-    if(!!a.deadline !== !!b.deadline) return a.deadline ? -1 : 1;
-    if(a.deadline && b.deadline && a.deadline !== b.deadline) return a.deadline < b.deadline ? -1 : 1;
-    return priorityRank[a.priority] - priorityRank[b.priority];
-  });
-
-  const el = document.getElementById('task-list');
-  if(!sorted.length) {
-    el.innerHTML = '<div class="empty"><div class="big">☑</div>No tasks yet. Add one on the left.</div>';
-  } else {
-    el.innerHTML = sorted.map(t => {
-      const isOverdue = !t.done && t.deadline && t.deadline < todayISO;
-      const dateStr = t.deadline ? new Date(t.deadline+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No deadline';
-      const badgeClass = t.priority==='High' ? 'badge-red' : t.priority==='Low' ? 'badge-blue' : 'badge-gold';
-      return `<div class="task-item${isOverdue?' overdue':''}">
-        <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
-        <div class="task-info">
-          <div class="task-name${t.done?' done':''}">${t.name}</div>
-          <div class="task-meta"><span class="badge ${badgeClass}">${t.priority}</span> · ${dateStr}${isOverdue?' · overdue':''}</div>
-        </div>
-        <button class="tx-del" onclick="deleteTask(${t.id})">✕</button>
-      </div>`;
-    }).join('');
+  function periodRange(p){
+    if(p==='today') return {start:TODAY, end:TODAY};
+    if(p==='week'){ const s=weekStart(TODAY); return {start:s, end:addDays(s,6)}; }
+    const s=monthStart(TODAY); const d=parse(s); d.setMonth(d.getMonth()+1); d.setDate(0);
+    return {start:s, end:localISO(d)};
   }
-  renderTaskChart(tasks);
-}
-
-function renderTaskChart(tasks) {
-  if(taskChart){taskChart.destroy();taskChart=null;}
-  const days = [];
-  const now = new Date();
-  for(let i=13;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
-  const counts = days.map(day => tasks.filter(t=>t.completed_at && localISO(new Date(t.completed_at))===day).length);
-  const labels = days.map(day => { const [y,m,d]=day.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
-  taskChart = new Chart(document.getElementById('taskChart'), { type:'bar', data:{ labels, datasets:[{ label:'Completed', data:counts, backgroundColor:'rgba(201,168,76,0.5)', borderColor:'#c9a84c', borderWidth:1, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ ticks:{color:'#5a5855',font:{size:10}}, grid:{display:false} }, y:{ beginAtZero:true, ticks:{color:'#5a5855',font:{size:11},stepSize:1}, grid:{color:'rgba(255,255,255,0.04)'} } } } });
-}
-
-// ════════════════════════════════
-//   HABITS
-// ════════════════════════════════
-function buildHabitColorPicker() {
-  const el = document.getElementById('habit-color-picker');
-  if(!selectedHabitColor) selectedHabitColor = CAT_COLORS[0];
-  el.innerHTML = CAT_COLORS.map(c => `<div class="color-swatch${c===selectedHabitColor?' selected':''}" style="background:${c};" onclick="selectHabitColor('${c}')"></div>`).join('');
-}
-
-function selectHabitColor(c) { selectedHabitColor = c; buildHabitColorPicker(); }
-
-async function addHabit() {
-  const name = document.getElementById('habit-name').value.trim();
-  if(!name) { toast('Enter a habit name.'); return; }
-  const row = { user_id:currentUser.id, name, color:selectedHabitColor||CAT_COLORS[0] };
-  const { data, error } = await db.from('habits').insert(row).select().single();
-  if(error) { toast('Error: '+error.message); return; }
-  state.habits.push(data);
-  document.getElementById('habit-name').value='';
-  renderHabits(); toast('Habit added ◆');
-}
-
-async function deleteHabit(id) {
-  await db.from('habits').delete().eq('id', id);
-  state.habits = state.habits.filter(h=>h.id!==id);
-  state.habit_logs = state.habit_logs.filter(l=>l.habit_id!==id);
-  renderHabits();
-}
-
-async function toggleHabitToday(id) {
-  const todayISO = localISO(new Date());
-  const existing = state.habit_logs.find(l=>l.habit_id===id && l.date===todayISO);
-  if(existing) {
-    await db.from('habit_logs').delete().eq('id', existing.id);
-    state.habit_logs = state.habit_logs.filter(l=>l.id!==existing.id);
-  } else {
-    const { data, error } = await db.from('habit_logs').insert({ user_id:currentUser.id, habit_id:id, date:todayISO }).select().single();
-    if(error) { toast('Error: '+error.message); return; }
-    state.habit_logs.push(data);
+  function prevRange(p){
+    if(p==='today') return {start:addDays(TODAY,-7), end:addDays(TODAY,-1)};
+    if(p==='week'){ const s=addDays(weekStart(TODAY),-7); return {start:s, end:addDays(s,6)}; }
+    const d=parse(monthStart(TODAY)); d.setMonth(d.getMonth()-1);
+    return {start:localISO(d), end:addDays(monthStart(TODAY),-1)};
   }
-  renderHabits();
-}
+  const periodWord = () => ({today:'Today', week:'This week', month:'This month'})[P.period];
+  const periodPhrase = () => ({today:'today', week:'this week', month:'this month'})[P.period];
+  const prevWord = () => ({today:'your 7-day average', week:'last week', month:'last month'})[P.period];
+  const monthName = () => parse(TODAY).toLocaleDateString('en-US',{month:'long', year:'numeric'});
 
-function habitLogDates(habitId) {
-  return state.habit_logs.filter(l=>l.habit_id===habitId).map(l=>l.date);
-}
+  // ───────── view models, rebuilt from Supabase state before every render ─────────
+  let tasks = [], HABITS = [], MEALS = {}, mealStart = TODAY;
+  function vmTask(t){
+    const status = t.status || (t.done ? 'completed' : 'not_started');
+    const planned = t.planned_for || localISO(new Date(t.created_at));
+    let completed = t.completed_at ? localISO(new Date(t.completed_at)) : null;
+    if(status==='completed' && !completed) completed = planned;
+    if(status!=='completed') completed = null;
+    return {id:t.id, name:t.name, notes:t.notes||'', priority:t.priority||null, category:t.category||'Other',
+      estimate:t.estimate_min||null, deadline:t.deadline||null, status, planned, completed};
+  }
+  function prep(){
+    TODAY = localISO(new Date());
+    tasks = state.tasks.map(vmTask);
+    const logs = new Map();
+    state.habit_logs.forEach(l => { if(!logs.has(l.habit_id)) logs.set(l.habit_id, new Set()); logs.get(l.habit_id).add(l.date); });
+    HABITS = [...state.habits].sort((a,b) => String(a.created_at).localeCompare(String(b.created_at))).map(h => {
+      const days = Array.isArray(h.weekdays) && h.weekdays.length ? [...h.weekdays].sort((a,b) => a-b) : null;
+      return {id:h.id, name:h.name, target:h.target||'', days, freq: days ? null : (h.per_week||7),
+        created: localISO(new Date(h.created_at)), archived: !!h.archived_at, logs: logs.get(h.id) || new Set()};
+    });
+    MEALS = {}; mealStart = TODAY;
+    (state.meals||[]).forEach(m => { (MEALS[m.date] ||= {})[m.slot] = m; if(m.date < mealStart) mealStart = m.date; });
+  }
+  const meal = (d,k) => (MEALS[d] && MEALS[d][k]) || null;
+  const eatenCount = d => SLOTS.filter(([k]) => meal(d,k)).length;
+  const sumK = d => SLOTS.reduce((a,[k]) => a + ((meal(d,k)||{}).calories || 0), 0);
+  const sumP = d => SLOTS.reduce((a,[k]) => a + ((meal(d,k)||{}).protein || 0), 0);
+  const kcalTarget = () => (state.settings && state.settings.calorie_target) || 2500;
+  const proteinTarget = () => (state.settings && state.settings.protein_target) || 120;
 
-function habitCurrentStreak(dates) {
-  const set = new Set(dates);
-  let streak = 0;
-  const d = new Date();
-  if(!set.has(localISO(d))) d.setDate(d.getDate()-1);
-  while(set.has(localISO(d))) { streak++; d.setDate(d.getDate()-1); }
-  return streak;
-}
+  // ───────── task metrics ─────────
+  const findTask = id => tasks.find(t => t.id===id);
+  const isOverdue = t => t.status!=='completed' && t.deadline && t.deadline < TODAY;
+  const isLateCompletion = t => t.status==='completed' && t.completed && t.completed > t.planned;
+  const statusKey = t => t.status==='completed' ? 'completed' : isOverdue(t) ? 'overdue' : t.status;
+  const STATUS = {
+    completed:{label:'Completed', color:'var(--green)'},
+    in_progress:{label:'In progress', color:'var(--gold)'},
+    overdue:{label:'Overdue', color:'var(--red)'},
+    not_started:{label:'Not started', color:'var(--idle)'},
+  };
+  function taskDay(d){
+    let planned=0, done=0, late=0;
+    for(const t of tasks){ if(t.planned===d){ planned++; if(t.completed===d) done++; else if(isLateCompletion(t)) late++; } }
+    return {planned, done, late, rate: planned ? done/planned : null, lateRate: planned ? late/planned : 0};
+  }
+  function completion(r){
+    let planned=0, done=0, late=0;
+    for(const d of daysIn(r)){ if(d>TODAY) break; const s=taskDay(d); planned+=s.planned; done+=s.done; late+=s.late; }
+    return {planned, done, late, rate: planned ? done/planned : null};
+  }
+  function deadlineStats(r){
+    let on=0, late=0; const lateList=[];
+    for(const t of tasks){
+      if(t.status!=='completed' || !t.deadline || !t.completed || !inRange(t.completed,r)) continue;
+      if(t.completed<=t.deadline) on++; else { late++; lateList.push(t); }
+    }
+    lateList.sort((a,b) => b.completed.localeCompare(a.completed));
+    return {on, late, total:on+late, rate:(on+late) ? on/(on+late) : null, lateList};
+  }
+  function taskStreak(){
+    const t = taskDay(TODAY);
+    let d = (t.rate!==null && t.rate>=.8) ? TODAY : addDays(TODAY,-1), n = 0;
+    for(let i=0;i<400;i++){
+      const s = taskDay(d);
+      if(s.planned===0){ d=addDays(d,-1); continue; }
+      if(s.rate>=.8){ n++; d=addDays(d,-1); } else break;
+    }
+    return n;
+  }
+  function statusBreakdown(r){
+    const c = {completed:0, in_progress:0, overdue:0, not_started:0};
+    for(const t of tasks){ if(isOverdue(t) || inRange(t.planned,r)) c[statusKey(t)]++; }
+    return c;
+  }
+  function dlInfo(t){
+    if(!t.deadline) return {cls:'none', text:'No deadline'};
+    if(t.status==='completed'){
+      const d = diffDays(t.deadline, t.completed);
+      return d>=0 ? {cls:'ontime', text: d===0 ? 'On time' : `On time · ${d}d early`} : {cls:'late', text:`Late · ${-d}d`};
+    }
+    const d = diffDays(t.deadline, TODAY);
+    if(d<0) return {cls:'overdue', text:`Overdue · ${-d}d`};
+    if(d===0) return {cls:'today', text:'Due today'};
+    if(d===1) return {cls:'soon', text:'Due tomorrow'};
+    return {cls:'soon', text:`Due ${fmtDay(t.deadline)}`};
+  }
+  function plannedLabel(t){
+    const d = diffDays(t.planned, TODAY);
+    if(d===0) return 'Today'; if(d===-1) return 'Yesterday'; if(d===1) return 'Tomorrow';
+    return fmtDay(t.planned);
+  }
 
-function habitLongestStreak(dates) {
-  const sorted = [...new Set(dates)].sort();
-  let longest=0, run=0, prev=null;
-  sorted.forEach(dstr => {
-    if(prev) {
-      const diff = Math.round((new Date(dstr+'T12:00:00') - new Date(prev+'T12:00:00'))/86400000);
-      run = diff===1 ? run+1 : 1;
-    } else run = 1;
-    longest = Math.max(longest, run);
-    prev = dstr;
-  });
-  return longest;
-}
+  // ───────── habit metrics ─────────
+  const isDays = h => Array.isArray(h.days);
+  const scheduled = (h,d) => !isDays(h) || h.days.includes(weekday(d));
+  const countsInDays = h => isDays(h) || h.freq===7;
+  const freqText = h => isDays(h) ? h.days.map(i => DOW[i]).join(', ') : h.freq===7 ? 'Daily' : `${h.freq} days a week`;
+  const activeHabits = () => HABITS.filter(h => !h.archived);
+  const dueOn = d => activeHabits().filter(h => h.created<=d && scheduled(h,d));
+  function habitPeriod(h, r){
+    let done=0, days=0, expected=0;
+    for(const d of daysIn(r)){
+      if(d>TODAY) break;
+      if(d<h.created) continue;
+      const x = h.logs.has(d);
+      if(d===TODAY && !x) continue;
+      days++; if(x && scheduled(h,d)) done++;
+      expected += isDays(h) ? (scheduled(h,d) ? 1 : 0) : h.freq/7;
+    }
+    return {done, days, expected, rate: expected>0 ? Math.min(1, done/expected) : null};
+  }
+  function weekCount(h, ws){ return daysIn({start:ws, end:addDays(ws,6)}).filter(d => d<=TODAY && h.logs.has(d) && scheduled(h,d)).length; }
+  function weekTarget(h, ws){ return isDays(h) ? daysIn({start:ws, end:addDays(ws,6)}).filter(d => d>=h.created && scheduled(h,d)).length : h.freq; }
+  function habitStreak(h){
+    if(countsInDays(h)){
+      let d = h.logs.has(TODAY) ? TODAY : addDays(TODAY,-1), n = 0;
+      for(let i=0; i<800 && d>=h.created; i++){
+        if(scheduled(h,d)){ if(h.logs.has(d)) n++; else break; }
+        d = addDays(d,-1);
+      }
+      return {n, unit: n===1 ? 'day' : 'days'};
+    }
+    let ws = weekStart(TODAY), n = 0;
+    if(weekCount(h,ws) >= h.freq) n++;
+    ws = addDays(ws,-7);
+    while(n<200 && ws>=weekStart(h.created) && weekCount(h,ws) >= h.freq){ n++; ws=addDays(ws,-7); }
+    return {n, unit: n===1 ? 'week' : 'weeks'};
+  }
+  function habitsSummary(r, isPrev){
+    const act = activeHabits();
+    if(!act.length) return {rate:null, sentence:'No habits yet. Add one on the Habits page.'};
+    if(P.period==='today' && !isPrev){
+      const due = dueOn(TODAY), n = due.filter(h => h.logs.has(TODAY)).length;
+      return due.length ? {rate:n/due.length, sentence:`${n} of ${due.length} habits done today.`} : {rate:null, sentence:'Nothing scheduled today.'};
+    }
+    const rows = act.map(h => ({h, p:habitPeriod(h,r).rate})).filter(x => x.p!==null);
+    if(!rows.length) return {rate:null, sentence:'No habit check-ins yet.'};
+    const avg = rows.reduce((a,x) => a+x.p, 0)/rows.length;
+    rows.sort((a,b) => b.p-a.p);
+    const top = rows[0], low = rows[rows.length-1];
+    return {rate:avg, sentence: top.p===low.p ? `Every habit at ${fmtPct(top.p)}.` : `Strongest: ${esc(top.h.name)} (${fmtPct(top.p)}). Weakest: ${esc(low.h.name)} (${fmtPct(low.p)}).`};
+  }
+  const habitListRange = () => periodRange(P.period==='today' ? 'week' : P.period);
 
-function habitMissedYesterday(habit, dates) {
-  const today = new Date(); const todayISO = localISO(today);
-  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
-  const yISO = localISO(yesterday);
-  const createdISO = localISO(new Date(habit.created_at));
-  if(createdISO >= yISO) return false;
-  const set = new Set(dates);
-  return !set.has(yISO) && !set.has(todayISO);
-}
+  // ───────── meal metrics (days before your first logged meal aren't counted) ─────────
+  function mealsSummary(r, isPrev){
+    if(P.period==='today' && !isPrev){
+      const n = eatenCount(TODAY);
+      return {rate:n/3, eaten:n, planned:3, sentence:`${n} of 3 meals so far today.`};
+    }
+    let eaten=0, planned=0; const miss={breakfast:0, lunch:0, dinner:0};
+    for(const d of daysIn(r)){
+      if(d>TODAY) break; if(d<mealStart) continue;
+      for(const [k] of SLOTS){
+        if(meal(d,k)){ eaten++; planned++; }
+        else if(d<TODAY){ planned++; miss[k]++; }
+      }
+    }
+    const [worst, second] = Object.entries(miss).sort((a,b) => b[1]-a[1]);
+    const skip = worst[1]>0 && worst[1]>second[1] ? ` ${slotName(worst[0])} is the one you skip most.` : '';
+    return {rate: planned ? eaten/planned : null, eaten, planned,
+      sentence: planned ? `${eaten} of ${planned} planned meals eaten.${skip}` : 'No meals logged yet.'};
+  }
+  function nutritionAvg(r){
+    let k=0, p=0, days=0;
+    for(const d of daysIn(r)){ if(d>=TODAY) break; if(d<mealStart) continue; days++; k+=sumK(d); p+=sumP(d); }
+    return days ? {kcal:k/days, protein:p/days, days} : null;
+  }
 
-function buildHeatmap(dates, color) {
-  const set = new Set(dates);
-  const days = [];
-  const now = new Date();
-  for(let i=97;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
-  return `<div class="heatmap">${days.map(day => `<div class="heatmap-cell" style="background:${set.has(day)?color:'var(--bg4)'};" title="${day}"></div>`).join('')}</div>`;
-}
+  // ───────── small visual helpers ─────────
+  function trendChip(cur, prev){
+    if(cur===null || prev===null) return '';
+    const d = Math.round(cur*100) - Math.round(prev*100);
+    if(d===0) return `<span class="trend flat">Same as ${prevWord()}</span>`;
+    return `<span class="trend ${d>0?'up':'down'}">${d>0?'↑':'↓'} ${Math.abs(d)}% ${P.period==='today'?'vs':'from'} ${prevWord()}</span>`;
+  }
+  function ringSVG(rate, size, stroke, late){
+    const c = size/2, rr = (size-stroke)/2, C = 2*Math.PI*rr, has = rate!==null && rate!==undefined;
+    const fs = size>=100 ? 24 : 13, gap = late>0 && rate>0 ? 3 : 0;
+    return `<svg viewBox="0 0 ${size} ${size}" aria-hidden="true">
+      <circle cx="${c}" cy="${c}" r="${rr}" fill="none" stroke="var(--bg4)" stroke-width="${stroke}" ${has?'':'stroke-dasharray="3 4"'}/>
+      ${has && rate>0 ? `<circle cx="${c}" cy="${c}" r="${rr}" fill="none" stroke="var(--gold)" stroke-width="${stroke}" stroke-dasharray="${Math.max(0,C*rate-gap).toFixed(2)} ${C.toFixed(2)}" transform="rotate(-90 ${c} ${c})"/>` : ''}
+      ${has && late>0 ? `<circle cx="${c}" cy="${c}" r="${rr}" fill="none" stroke="rgba(226,85,85,0.6)" stroke-width="${stroke}" stroke-dasharray="${Math.max(0,C*late-gap).toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-C*rate).toFixed(2)}" transform="rotate(-90 ${c} ${c})"/>` : ''}
+      <text x="${c}" y="${c}" text-anchor="middle" dominant-baseline="central" fill="${has?'var(--text)':'var(--text3)'}" font-family="DM Sans, sans-serif" font-size="${fs}">${has ? Math.round(rate*100)+'%' : '—'}</text>
+    </svg>`;
+  }
+  function spark(values){
+    const w=96, h=32, p=3, n=values.length;
+    const pts = values.map((v,i) => v===null ? null : [p + i*(w-2*p)/(n-1), h-p-(v/100)*(h-2*p)]).filter(Boolean);
+    if(pts.length<2) return '';
+    const line = pts.map((q,i) => `${i?'L':'M'}${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(' ');
+    const last = pts[pts.length-1];
+    const area = `${line} L${last[0].toFixed(1)} ${h-p} L${pts[0][0].toFixed(1)} ${h-p} Z`;
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${area}" fill="rgba(201,168,76,0.10)"/><path d="${line}" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.5" fill="var(--gold)"/></svg>`;
+  }
+  function last7(fn){ const out=[]; for(let i=6;i>=0;i--) out.push(fn(addDays(TODAY,-i))); return out; }
+  const HM = ['#242428','rgba(201,168,76,0.22)','rgba(201,168,76,0.42)','rgba(201,168,76,0.66)','#c9a84c'];
 
-function renderHabits() {
-  const habits = state.habits;
-  const todayISO = localISO(new Date());
+  // ───────── shared components ─────────
+  function checkBtn(t){
+    const cls = t.status==='completed' ? 'done' : t.status==='in_progress' ? 'progress' : '';
+    return `<button class="check ${cls}" data-action="toggle-task" data-id="${t.id}" aria-label="${t.status==='completed' ? 'Mark not done' : 'Mark done'}: ${esc(t.name)}">${t.status==='completed' ? '✓' : ''}</button>`;
+  }
+  function completionCard(canvasId){
+    const heads = {
+      today:['Today’s commitments','What you planned for today, and how much of it is done'],
+      week:['Weekly completion','Share of each day’s plan you finished, not how many tasks'],
+      month:['This month, day by day','Daily completion rate, with your average for the month'],
+    }[P.period];
+    let body = '';
+    if(P.period==='today'){
+      const s = taskDay(TODAY);
+      const list = tasks.filter(t => t.planned===TODAY);
+      body = `<div class="today-wrap"><div class="today-ring">${ringSVG(s.rate,120,8,0)}<span class="ring-meta">${s.done} of ${s.planned} done</span></div>
+        <div class="today-list">${list.map(t => `<div class="mini-task">${checkBtn(t)}<span class="mini-name${t.status==='completed'?' done':''}">${esc(t.name)}</span><span class="dl ${dlInfo(t).cls}">${dlInfo(t).text}</span></div>`).join('') || '<div class="empty">Nothing planned for today. Add a task on the Tasks page.</div>'}</div></div>`;
+    } else if(P.period==='week'){
+      const ws = weekStart(TODAY);
+      body = `<div class="rings">${DOW.map((n,i) => {
+        const d = addDays(ws,i), s = taskDay(d), future = d>TODAY;
+        let rate = null, meta, tip;
+        if(future) meta = tip = s.planned ? `${s.planned} planned` : 'No plan';
+        else if(!s.planned) meta = tip = 'No plan';
+        else {
+          rate = s.rate;
+          meta = s.late ? `${s.done} on time · ${s.late} late<br>${s.done+s.late} of ${s.planned} done` : `${s.done} of ${s.planned} done`;
+          tip = s.late ? `${s.done} on time, ${s.late} late, ${s.done+s.late} of ${s.planned} done` : meta;
+        }
+        return `<div class="ring${d===TODAY?' today':''}" title="${fmtDay(d)}: ${tip}${d===TODAY?' (so far)':''}"><div class="ring-day">${d===TODAY?'Today':n}</div>${ringSVG(rate,64,5,future?0:s.lateRate)}<div class="ring-meta">${meta}</div></div>`;
+      }).join('')}</div>
+      <div class="visual-foot legend"><span><i style="background:var(--gold)"></i>Finished on the planned day (this is the %)</span><span><i style="background:rgba(226,85,85,0.6)"></i>Finished later: completed, but late</span><span><i style="border:1.5px dashed var(--border2)"></i>Nothing planned yet</span></div>`;
+    } else {
+      const c = completion(periodRange('month'));
+      body = `<div class="chart-box"><canvas id="${canvasId}" aria-label="Daily completion rate this month"></canvas></div>
+        <div class="visual-foot legend"><span><i class="line" style="background:var(--gold)"></i>Daily completion</span><span><i class="dash"></i>Month average · ${fmtPct(c.rate)}</span></div>`;
+    }
+    return `<div class="card"><div class="section-head"><div><div class="section-title">${heads[0]}</div><div class="section-sub">${heads[1]}</div></div></div>${body}</div>`;
+  }
+  function drawMonthChart(canvasId){
+    if(chart){ chart.destroy(); chart = null; }
+    const el = document.getElementById(canvasId);
+    if(!el) return;
+    if(typeof Chart==='undefined'){ el.parentElement.innerHTML = '<div class="empty">The chart library didn’t load. Check your connection and reload.</div>'; return; }
+    const r = periodRange('month'), days = daysIn(r);
+    const data = days.map(d => { if(d>TODAY) return null; const s = taskDay(d); return s.planned ? Math.round(s.rate*100) : null; });
+    const c = completion(r), avg = c.rate===null ? null : Math.round(c.rate*100);
+    chart = new Chart(el, {
+      type:'line',
+      data:{ labels: days.map(d => String(parse(d).getDate())), datasets:[
+        {label:'Daily completion', data, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,0.10)', fill:true, borderWidth:2, tension:.3, spanGaps:true,
+          pointRadius: days.map(d => d===TODAY ? 4 : 2.5), pointBackgroundColor:'#c9a84c', pointBorderColor:'#141416', pointBorderWidth:1.5, pointHoverRadius:5},
+        {label:'Month average', data: days.map(d => d<=TODAY ? avg : null), borderColor:'rgba(240,237,232,0.35)', borderDash:[4,4], borderWidth:1, pointRadius:0, pointHoverRadius:0, fill:false},
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+        plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1c1c20', borderColor:'rgba(255,255,255,0.12)', borderWidth:1, titleColor:'#f0ede8', bodyColor:'#9d9a95', padding:10, displayColors:false,
+          filter: item => item.datasetIndex===0,
+          callbacks:{ title: items => fmtDay(days[items[0].dataIndex]), label: ctx => { const s = taskDay(days[ctx.dataIndex]); return `${s.done} of ${s.planned} done that day (${ctx.parsed.y}%)${s.late ? `, ${s.late} finished late` : ''}`; } } } },
+        scales:{ x:{ ticks:{color:'#5a5855', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:10}, grid:{display:false} },
+          y:{ min:0, max:100, ticks:{color:'#5a5855', font:{size:11}, stepSize:25, callback: v => v+'%'}, grid:{color:'rgba(255,255,255,0.04)'} } } }
+    });
+  }
+  function heatmap(habitId, compact){
+    const r = periodRange('month'), lead = weekday(r.start);
+    const cells = [];
+    for(let i=0;i<lead;i++) cells.push('<div class="hm-cell empty"></div>');
+    for(const d of daysIn(r)){
+      let cls = 'hm-cell', style = '', title;
+      if(d>TODAY){ cls += ' future'; title = `${fmtDay(d)}: still to come`; }
+      else {
+        let lvl, desc;
+        if(habitId==='all'){ const due = dueOn(d); const n = due.filter(h => h.logs.has(d)).length; lvl = n ? Math.max(1, Math.round(n/due.length*4)) : 0; desc = due.length ? `${n} of ${due.length} habits done` : 'nothing scheduled'; }
+        else { const h = HABITS.find(x => x.id===habitId); const x = h && h.logs.has(d); lvl = x ? 4 : 0; desc = h ? (x ? `${h.name} done` : `${h.name} not done`) : ''; }
+        style = `background:${HM[lvl]}`; title = `${fmtDay(d)}: ${esc(desc)}${d===TODAY?' (so far)':''}`;
+      }
+      if(d===TODAY) cls += ' today';
+      cells.push(`<div class="${cls}" style="${style}" title="${title}" role="img" aria-label="${title}"></div>`);
+    }
+    const legend = habitId==='all' ? HM : [HM[0], HM[4]];
+    return `<div class="heatmap${compact?' compact':''}">${DOW.map(n => `<div class="hm-head">${n[0]}</div>`).join('')}${cells.join('')}</div>
+      <div class="hm-legend"><span>${habitId==='all'?'Fewer':'Missed'}</span>${legend.map(c => `<span class="sw" style="background:${c}"></span>`).join('')}<span>${habitId==='all'?'All habits':'Done'}</span></div>`;
+  }
+  function mealRow(k, label, compact){
+    const x = meal(TODAY, k);
+    const editing = !compact && P.mealEdit===k;
+    const nums = x ? [x.calories ? fmtN(x.calories)+' kcal' : '', x.protein ? x.protein+' g' : ''].filter(Boolean).join(' · ') : '';
+    const nameText = x ? esc(x.name || 'Eaten') : (compact ? 'Not yet' : 'Tap to add what you ate');
+    return `<div class="meal"><button class="check ${x?'done':''}" data-action="toggle-meal" data-slot="${k}" aria-label="${x?'Mark '+label+' not eaten':'Mark '+label+' eaten'}">${x?'✓':''}</button>
+      <div class="meal-slot">${label}</div>
+      <button class="meal-name${x?'':' pending'}" data-action="${compact?'go':'edit-meal'}" data-page="body" data-slot="${k}">${nameText}</button>
+      <div class="meal-nums">${nums}</div></div>${editing ? mealForm(k, x || {}) : ''}`;
+  }
+  function mealForm(k, x){
+    return `<form class="meal-form" id="meal-form" data-slot="${k}" autocomplete="off"><div class="form">
+      <div class="field full"><label for="m-name">What did you eat?</label><input id="m-name" value="${esc(x.name)}" placeholder="e.g. Daal chawal"></div>
+      <div class="field"><label for="m-kcal">Calories (optional)</label><input id="m-kcal" type="number" min="0" step="10" value="${x.calories ?? ''}"></div>
+      <div class="field"><label for="m-protein">Protein, g (optional)</label><input id="m-protein" type="number" min="0" value="${x.protein ?? ''}"></div>
+      <div class="field full"><label for="m-notes">Notes (optional)</label><input id="m-notes" value="${esc(x.notes)}" placeholder="e.g. ate late, felt heavy"></div>
+      <div class="form-actions"><button type="button" class="btn btn-ghost" data-action="close-meal">Cancel</button><button type="submit" class="btn btn-gold">Save ${slotName(k).toLowerCase()}</button></div>
+    </div></form>`;
+  }
+  function nutritionBars(){
+    const k = sumK(TODAY), p = sumP(TODAY), kt = kcalTarget(), pt = proteinTarget();
+    return `<div class="nutri">
+      <div class="bar-row"><div class="bar-top"><span>Calories</span><strong>${fmtN(k)} <small>/ ${fmtN(kt)}</small></strong></div><div class="bar"><span style="width:${Math.min(100,k/kt*100)}%;background:var(--gold)"></span></div></div>
+      <div class="bar-row"><div class="bar-top"><span>Protein</span><strong>${p} g <small>/ ${pt} g</small></strong></div><div class="bar"><span style="width:${Math.min(100,p/pt*100)}%;background:var(--blue)"></span></div></div>
+    </div>`;
+  }
+  function mealWeek(){
+    const ws = weekStart(TODAY);
+    let rows = '';
+    for(let i=0;i<7;i++){
+      const d = addDays(ws,i);
+      rows += `<div class="mw-day${d===TODAY?' today':''}">${d===TODAY?'Today':DOW[i]}</div>` + SLOTS.map(([k,l]) => {
+        let cls = 'pending', lab = 'still to come';
+        if(d<=TODAY){
+          if(meal(d,k)){ cls='done'; lab='eaten'; }
+          else if(d<mealStart){ lab='before you started tracking'; }
+          else if(d<TODAY){ cls='miss'; lab='missed'; }
+          else lab='not yet';
+        }
+        return `<span class="mw-dot ${cls}" title="${DOW[i]} ${l.toLowerCase()}: ${lab}" role="img" aria-label="${DOW[i]} ${l.toLowerCase()}: ${lab}"></span>`;
+      }).join('');
+    }
+    return `<div><div class="meal-week"><span></span>${SLOTS.map(([,l]) => `<span class="mw-head" title="${l}">${l.slice(0,1)}</span>`).join('')}${rows}</div>
+      <div class="legend" style="margin-top:14px"><span><i style="background:var(--green)"></i>Eaten</span><span><i style="border:1.5px solid rgba(226,85,85,.5)"></i>Missed</span><span><i style="border:1.5px dashed var(--border2)"></i>Not yet</span></div></div>`;
+  }
 
-  document.getElementById('habit-count').textContent = habits.length;
-
-  const doneToday = habits.filter(h => state.habit_logs.some(l=>l.habit_id===h.id && l.date===todayISO));
-  document.getElementById('habit-today').textContent = `${doneToday.length}/${habits.length}`;
-
-  let bestStreak = 0;
-  habits.forEach(h => { const s = habitCurrentStreak(habitLogDates(h.id)); if(s>bestStreak) bestStreak=s; });
-  document.getElementById('habit-best-streak').textContent = bestStreak;
-
-  const thirtyAgo = new Date(); thirtyAgo.setDate(thirtyAgo.getDate()-29);
-  const thirtyAgoISO = localISO(thirtyAgo);
-  const logsInWindow = state.habit_logs.filter(l=>l.date>=thirtyAgoISO && l.date<=todayISO);
-  const possible = habits.length*30;
-  document.getElementById('habit-consistency').textContent = (possible>0 ? Math.round((logsInWindow.length/possible)*100) : 0)+'%';
-
-  const el = document.getElementById('habits-list');
-  if(!habits.length) {
-    el.innerHTML = '<div class="empty"><div class="big">◆</div>No habits yet. Add one above to start your streak.</div>';
-  } else {
-    el.innerHTML = habits.map(h => {
-      const dates = habitLogDates(h.id);
-      const current = habitCurrentStreak(dates);
-      const longest = habitLongestStreak(dates);
-      const done = state.habit_logs.some(l=>l.habit_id===h.id && l.date===todayISO);
-      const warn = !done && habitMissedYesterday(h, dates);
-      return `<div class="habit-card">
-        <div class="habit-top">
-          <div class="habit-id"><span class="habit-dot" style="background:${h.color};"></span><span class="habit-name">${h.name}</span>${warn?'<span class="habit-warn">Don’t miss twice</span>':''}</div>
-          <div class="habit-actions">
-            <div class="habit-stats"><div><span>Streak: </span><strong>${current}</strong></div><div><span>Best: </span><strong>${longest}</strong></div></div>
-            <button class="habit-mark${done?' done':''}" onclick="toggleHabitToday(${h.id})">${done?'✓ Done today':'Mark today'}</button>
-            <button class="tx-del" onclick="deleteHabit(${h.id})">✕</button>
+  // ───────── overview ─────────
+  function qCard(page, kind, ask, rate, trend, sentence, values){
+    return `<button class="card q-card" data-action="go" data-page="${page}">
+      <span class="q-kind">${kind}</span><span class="q-ask">${ask}</span>
+      <span class="q-num">${fmtPct(rate)}</span>${trend}
+      <span class="q-foot"><span class="q-sentence">${sentence}</span><span class="spark-wrap">${spark(values)}<span class="spark-label">last 7 days</span></span></span>
+    </button>`;
+  }
+  function plainWords(){
+    const items = [
+      ['Completion rate','Out of the tasks you planned for a day, how many you finished that day. Five planned and four done is 80%. A busy day and a quiet day count the same, because it measures whether you kept your word to yourself.'],
+      ['Late completion','A task finished after the day you planned it. It is marked completed and nothing is lost, but it shows as a red slice on that day’s ring and doesn’t raise that day’s completion rate.'],
+      ['Deadline discipline','Of the tasks that had a deadline, how many you finished on or before it. Tasks without a deadline stay out of it. Overdue tasks you haven’t finished yet are shown separately until you close them.'],
+      ['Current streak','How many days in a row you finished at least 80% of what you planned. Days with nothing planned don’t break it.'],
+      ['Habit consistency','How often you did a habit compared with how often you meant to. A five-days-a-week habit done five times a week is 100%. A habit set to specific days only expects those days. A habit’s score starts from the day you add it.'],
+      ['Habit heatmap','Each square is one day this month. The brighter the gold, the more of that day’s habits you did.'],
+      ['Meal tracking','A quick tick for each meal you meant to eat. Calories and protein are optional; the tick alone counts. Meals not eaten yet today, and days before you started tracking, aren’t counted as missed.'],
+      ['Colours','Green means something got done. Gold shows how much or how consistently. Red means late or missed.'],
+    ];
+    return `<details class="section card plain" id="plain-words">
+      <summary><div><div class="section-title">In plain words</div><div class="section-sub">What each number on these pages measures</div></div></summary>
+      <div class="plain-grid">${items.map(([t,d]) => `<div><div class="plain-term">${t}</div><p class="plain-def">${d}</p></div>`).join('')}</div>
+    </details>`;
+  }
+  function renderOverview(){
+    const r = periodRange(P.period), pr = prevRange(P.period);
+    const c = completion(r), cp = completion(pr);
+    const hs = habitsSummary(r), hp = habitsSummary(pr, true);
+    const ms = mealsSummary(r), mp = mealsSummary(pr, true);
+    const hr = habitListRange(), act = activeHabits();
+    const soFar = P.period==='today' ? ' so far' : '';
+    return `
+    <div class="section">
+      <div class="section-eyebrow">${periodWord()}, in three questions</div>
+      <div class="grid-3">
+        ${qCard('tasks','Tasks','Am I doing what I planned?', c.rate, trendChip(c.rate,cp.rate), c.planned ? `${c.done} of ${c.planned} planned tasks finished${soFar}.` : 'Nothing planned yet.', last7(d => { const s = taskDay(d); return s.planned ? s.rate*100 : null; }))}
+        ${qCard('habits','Habits','Am I being consistent?', hs.rate, trendChip(hs.rate,hp.rate), hs.sentence, last7(d => { const due = dueOn(d); return due.length ? due.filter(h => h.logs.has(d)).length/due.length*100 : null; }))}
+        ${qCard('body','Body','Am I taking care of myself?', ms.rate, trendChip(ms.rate,mp.rate), ms.sentence, last7(d => d>=mealStart ? eatenCount(d)/3*100 : null))}
+      </div>
+    </div>
+    <div class="section">${completionCard('prod-ov-month')}</div>
+    <div class="section grid-2">
+      <div class="card">
+        <div class="section-head"><div><div class="section-title">Habit consistency</div><div class="section-sub">${monthName()} · brighter squares mean more habits done</div></div><button class="link" data-action="go" data-page="habits">Open Habits →</button></div>
+        <div class="ov-habits">
+          <div>${heatmap('all', true)}</div>
+          <div class="habit-list"><div class="mini-label">Consistency ${P.period==='month'?'this month':'this week'}</div>
+            ${act.map(h => { const p = habitPeriod(h,hr); return `<button class="hl-row" data-action="go" data-page="habits"><span class="hl-top"><span>${esc(h.name)}</span><strong>${fmtPct(p.rate)}</strong></span><span class="thin-bar" style="display:block"><span style="width:${(p.rate||0)*100}%"></span></span></button>`; }).join('') || '<span class="hint">No habits yet.</span>'}
           </div>
         </div>
-        ${buildHeatmap(dates, h.color)}
-      </div>`;
-    }).join('');
+      </div>
+      <div class="card">
+        <div class="section-head"><div><div class="section-title">Today’s meals</div><div class="section-sub">Tick a meal once you’ve eaten it</div></div><button class="link" data-action="go" data-page="body">Open Body →</button></div>
+        <div class="meals">${SLOTS.map(([k,l]) => mealRow(k,l,true)).join('')}</div>
+        ${nutritionBars()}
+      </div>
+    </div>
+    ${plainWords()}`;
   }
-  renderHabitChart(habits);
-}
 
-function renderHabitChart(habits) {
-  if(habitChart){habitChart.destroy();habitChart=null;}
-  const days = [];
-  const now = new Date();
-  for(let i=13;i>=0;i--) { const d=new Date(now); d.setDate(d.getDate()-i); days.push(localISO(d)); }
-  const total = habits.length;
-  const pct = days.map(day => total>0 ? Math.round((state.habit_logs.filter(l=>l.date===day).length/total)*100) : 0);
-  const labels = days.map(day => { const [y,m,d]=day.split('-'); return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
-  habitChart = new Chart(document.getElementById('habitChart'), { type:'bar', data:{ labels, datasets:[{ label:'Check-in rate', data:pct, backgroundColor:'rgba(201,168,76,0.5)', borderColor:'#c9a84c', borderWidth:1, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}}, scales:{ x:{ ticks:{color:'#5a5855',font:{size:10}}, grid:{display:false} }, y:{ beginAtZero:true, max:100, ticks:{color:'#5a5855',font:{size:11},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,0.04)'} } } } });
-}
+  // ───────── tasks ─────────
+  function deadlineCard(r){
+    const dd = deadlineStats(r), od = tasks.filter(isOverdue).length;
+    const onW = dd.total ? dd.on/dd.total*100 : 0;
+    return `<div class="card">
+      <div class="section-head"><div><div class="section-title">Deadline discipline</div><div class="section-sub">Of tasks with a deadline, how many you finished on or before it</div></div></div>
+      <div class="dd-num">${fmtPct(dd.rate)}</div>
+      <div class="split-bar" role="img" aria-label="${dd.on} on time, ${dd.late} late">${dd.on ? `<span style="width:${onW}%;background:var(--green)"></span>` : ''}${dd.late ? `<span style="width:${100-onW}%;background:var(--red)"></span>` : ''}</div>
+      <div class="legend"><span><i style="background:var(--green)"></i>${dd.on} finished on time</span><span><i style="background:var(--red)"></i>${dd.late} finished late</span></div>
+      ${dd.lateList.length ? `<div class="late-list"><div class="mini-label">Finished late</div>${dd.lateList.slice(0,3).map(t => `<div class="late-row"><span>${esc(t.name)}</span><span class="red">${diffDays(t.completed,t.deadline)}d late</span></div>`).join('')}</div>` : `<div class="late-list"><span class="hint">Nothing finished late ${periodPhrase()}.</span></div>`}
+      <div class="dd-foot">Tasks without a deadline don’t count here. ${od ? `${od} overdue task${od===1?' is':'s are'} still open and will count once finished.` : 'No overdue tasks right now.'}</div>
+    </div>`;
+  }
+  function statusCard(r){
+    const sb = statusBreakdown(r), order = ['completed','in_progress','overdue','not_started'];
+    const total = order.reduce((a,k) => a+sb[k], 0);
+    return `<div class="card">
+      <div class="section-head"><div><div class="section-title">Task status</div><div class="section-sub">Tasks planned ${periodPhrase()}, plus anything overdue</div></div></div>
+      <div class="status-total"><span class="kpi-val">${total}</span><span class="hint">tasks</span></div>
+      <div class="split-bar" role="img" aria-label="${order.map(k => `${sb[k]} ${STATUS[k].label.toLowerCase()}`).join(', ')}">${order.filter(k => sb[k]).map(k => `<span style="width:${sb[k]/total*100}%;background:${STATUS[k].color}" title="${STATUS[k].label}: ${sb[k]}"></span>`).join('')}</div>
+      <div>${order.map(k => `<div class="status-row"><span><i class="status-dot" style="background:${STATUS[k].color}"></i>${STATUS[k].label}</span><strong>${sb[k]}</strong></div>`).join('')}</div>
+    </div>`;
+  }
+  function taskItem(t){
+    const k = statusKey(t), dl = dlInfo(t), open = P.openTask===t.id;
+    return `<div class="task${t.status==='completed'?' completed':''}${open?' open':''}">
+      <div class="task-row" data-action="open-task" data-id="${t.id}" role="button" tabindex="0" aria-expanded="${open}">
+        ${checkBtn(t)}
+        <div class="task-main"><div class="task-name">${esc(t.name)}</div>
+          <div class="task-meta"><i class="status-dot" style="background:${STATUS[k].color}"></i><span>${STATUS[t.status].label}</span><span>·</span><span>${plannedLabel(t)}</span><span>·</span><span>${esc(t.category)}</span>${t.priority ? `<span>·</span><span>${esc(t.priority)}</span>` : ''}${t.estimate ? `<span>·</span><span>${t.estimate} min</span>` : ''}${isLateCompletion(t) ? `<span class="dl latec" title="Planned for ${fmtDay(t.planned)}, finished ${fmtDay(t.completed)}">Late completion · ${diffDays(t.completed,t.planned)}d</span>` : ''}<span class="dl ${dl.cls}">${dl.text}</span></div>
+        </div>
+      </div>
+      ${open ? `<div class="task-detail">
+        <p class="task-notes${t.notes?'':' hint'}">${t.notes ? esc(t.notes) : 'No notes for this task.'}</p>
+        <div class="detail-grid"><div>Planned for<strong>${fmtDay(t.planned)}</strong></div><div>Deadline<strong>${t.deadline ? fmtDay(t.deadline) : 'None'}</strong></div><div>Completed<strong>${t.completed ? fmtDay(t.completed) : '—'}</strong></div><div>Estimate<strong>${t.estimate ? t.estimate+' min' : '—'}</strong></div></div>
+        <div class="detail-actions"><div class="seg" role="group" aria-label="Status">${['not_started','in_progress','completed'].map(s => `<button class="${t.status===s?'active':''}" data-action="set-status" data-id="${t.id}" data-status="${s}">${STATUS[s].label}</button>`).join('')}</div>
+        <button class="del-btn" data-action="delete-task" data-id="${t.id}">Delete task</button></div>
+      </div>` : ''}
+    </div>`;
+  }
+  function addForm(){
+    return `<form class="card add-form" id="add-form" autocomplete="off"><div class="section-title" style="margin-bottom:12px">New task</div><div class="form">
+      <div class="field full"><label for="f-name">Task</label><input id="f-name" placeholder="e.g. Send the weekly caregiver schedule"></div>
+      <div class="field full"><label for="f-notes">Notes (optional)</label><textarea id="f-notes" placeholder="Anything you’ll want to remember later"></textarea></div>
+      <div class="field"><label for="f-planned">Planned for</label><input id="f-planned" type="date" value="${TODAY}"></div>
+      <div class="field"><label for="f-deadline">Deadline (optional)</label><input id="f-deadline" type="date"></div>
+      <div class="field"><label for="f-priority">Priority (optional)</label><select id="f-priority"><option value="">None</option><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+      <div class="field"><label for="f-category">Category</label><select id="f-category">${TASK_CATS.map(c => `<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label for="f-estimate">Estimated time, minutes (optional)</label><input id="f-estimate" type="number" min="5" step="5" placeholder="30"></div>
+      <div class="form-actions"><button type="button" class="btn btn-ghost" data-action="toggle-add">Cancel</button><button type="submit" class="btn btn-gold">Add task</button></div>
+    </div></form>`;
+  }
+  const FILTERS = [
+    ['open','Open', t => t.status!=='completed'],
+    ['today','Today', t => t.planned===TODAY],
+    ['overdue','Overdue', t => isOverdue(t)],
+    ['upcoming','Upcoming', t => t.planned>TODAY && t.status!=='completed'],
+    ['done','Done this week', t => t.status==='completed' && t.completed>=addDays(TODAY,-6)],
+  ];
+  function taskList(){
+    const f = FILTERS.find(x => x[0]===P.taskFilter);
+    const list = tasks.filter(f[2]);
+    const rank = {High:0, Medium:1, Low:2};
+    if(P.taskFilter==='done') list.sort((a,b) => b.completed.localeCompare(a.completed));
+    else list.sort((a,b) => (isOverdue(b)-isOverdue(a)) || a.planned.localeCompare(b.planned) || ((rank[a.priority]??3)-(rank[b.priority]??3)));
+    const emptyMsg = !tasks.length ? 'No tasks yet. Add your first one to start measuring your week.' : P.taskFilter==='overdue' ? 'Nothing overdue. Every open task is still within its deadline.' : 'No tasks here.';
+    return `<div class="toolbar"><div class="chips" role="group" aria-label="Filter tasks">${FILTERS.map(([key,label,fn]) => `<button class="chip${P.taskFilter===key?' active':''}" data-action="filter" data-filter="${key}">${label}<span class="count">${tasks.filter(fn).length}</span></button>`).join('')}</div>
+      <button class="btn ${P.showAdd?'btn-ghost':'btn-gold'}" data-action="toggle-add">${P.showAdd?'Close':'+ Add task'}</button></div>
+      ${P.showAdd ? addForm() : ''}
+      <div class="task-list">${list.map(taskItem).join('') || `<div class="empty">${emptyMsg}</div>`}</div>`;
+  }
+  function renderTasks(){
+    const r = periodRange(P.period), pr = prevRange(P.period);
+    const c = completion(r), cp = completion(pr), dd = deadlineStats(r);
+    const od = tasks.filter(isOverdue).length, st = taskStreak();
+    return `
+    <div class="section card"><div class="hero">
+      <div><div class="section-eyebrow">${periodWord()}</div><div class="hero-num">${fmtPct(c.rate)}</div><div class="hero-label">Completion rate${P.period==='today'?' so far':''}</div>${trendChip(c.rate,cp.rate)}</div>
+      <p class="hero-sentence">You finished <strong>${c.done}</strong> of the <strong>${c.planned}</strong> tasks you planned ${periodPhrase()}, on the day you planned them.${c.late ? ` <strong>${c.late}</strong> more were finished later and count as late completions.` : ''} This counts what you committed to, not how busy the day was.</p>
+    </div></div>
+    <div class="section kpi-grid">
+      <div class="kpi"><div class="kpi-label">Tasks completed</div><div class="kpi-val">${c.done} <small>/ ${c.planned}</small></div><div class="kpi-sub">on the day planned${c.late ? ` · ${c.late} more finished late` : ''}</div></div>
+      <div class="kpi"><div class="kpi-label">On time</div><div class="kpi-val green">${fmtPct(dd.rate)}</div><div class="kpi-sub">${dd.on} of ${dd.total} deadline tasks</div></div>
+      <div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-val ${od?'red':''}">${od}</div><div class="kpi-sub">open and past deadline</div></div>
+      <div class="kpi"><div class="kpi-label">Current streak</div><div class="kpi-val gold">${st} <small>${st===1?'day':'days'}</small></div><div class="kpi-sub">days with 80%+ of plan done</div></div>
+    </div>
+    <div class="section">${completionCard('prod-tasks-month')}</div>
+    <div class="section grid-2">${deadlineCard(r)}${statusCard(r)}</div>
+    <div class="section"><div class="section-head"><div><div class="section-title">Your tasks</div><div class="section-sub">Tap a task to see details and change its status. Tap the circle to finish it.</div></div></div>${taskList()}</div>`;
+  }
+
+  // ───────── habits ─────────
+  function habitCard(h){
+    const p = habitPeriod(h, habitListRange()), mp = habitPeriod(h, periodRange('month'));
+    const s = habitStreak(h), ws = weekStart(TODAY), wc = weekCount(h, ws), wt = weekTarget(h, ws);
+    const strip = DOW.map((n,i) => {
+      const d = addDays(ws,i), done = h.logs.has(d);
+      let cls, sym = '', lab;
+      if(d<h.created){ cls='rest'; lab='before this habit started'; }
+      else if(d>TODAY){ cls='future'; lab = scheduled(h,d) ? 'still to come' : 'rest day'; }
+      else if(done){ cls='done'; sym='✓'; lab='done'; }
+      else if(d===TODAY){ if(scheduled(h,d)){ cls='pending'; lab='not yet, tap to mark done'; } else { cls='rest'; sym='–'; lab='rest day, tap if you did it anyway'; } }
+      else if(isDays(h) ? scheduled(h,d) : h.freq===7){ cls='miss'; sym='✕'; lab='missed'; }
+      else { cls='rest'; sym='–'; lab = isDays(h) ? 'rest day (not scheduled)' : 'not done (rest days are allowed)'; }
+      const inner = `<span class="day-letter">${n.slice(0,1)}</span><span class="day-mark ${cls}">${sym}</span>`;
+      return d===TODAY
+        ? `<button class="day-cell today" data-action="toggle-habit" data-id="${h.id}" aria-label="${esc(h.name)}, today: ${lab}" title="Today: ${lab}">${inner}</button>`
+        : `<div class="day-cell" title="${DOW[i]} ${fmtDay(d)}: ${lab}">${inner}</div>`;
+    }).join('');
+    const isNew = h.created===TODAY;
+    return `<div class="habit">
+      <div class="habit-head">
+        <div><button class="habit-name" data-action="hm-habit" data-id="${h.id}" title="Show on the heatmap">${esc(h.name)}</button><div class="habit-target">${esc(h.target)}${h.target ? ' · ' : ''}${freqText(h)}${isNew ? ' · <span class="gold">new today</span>' : ''}</div></div>
+        <div><div class="habit-pct">${fmtPct(p.rate)}</div><div class="habit-pct-label">Consistency ${P.period==='month'?'this month':'this week'}</div></div>
+      </div>
+      <div class="week-strip">${strip}</div>
+      <div class="thin-bar"><span style="width:${(p.rate||0)*100}%"></span></div>
+      <div class="detail-actions">
+        <div class="habit-stats">
+          <div>Streak <strong>${s.n} ${s.unit}</strong></div>
+          <div>This week <strong>${wc}${countsInDays(h) && !isDays(h) ? '' : ' / '+wt}</strong></div>
+          <div>This month <strong>${mp.done} / ${Math.round(mp.expected)}</strong>${countsInDays(h) ? ' days' : ' target so far'}</div>
+        </div>
+        <button class="del-btn" data-action="archive-habit" data-id="${h.id}">Archive</button>
+      </div>
+    </div>`;
+  }
+  function habitForm(){
+    const n = activeHabits().length;
+    return `<form class="card add-form" id="habit-form" autocomplete="off">
+      <div class="section-title" style="margin-bottom:12px">New habit</div>
+      ${n>=5 ? `<p class="nudge">You're already tracking ${n} habits. Atomic Habits suggests making a few automatic before adding more. You can still add it.</p>` : ''}
+      <div class="form">
+        <div class="field"><label for="h-name">Habit</label><input id="h-name" placeholder="e.g. Practise cold calls"></div>
+        <div class="field"><label for="h-target">Target (optional)</label><input id="h-target" placeholder="e.g. 15 minutes, 20 pages"></div>
+        <div class="field full"><span class="flabel" id="h-mode-label">How often</span>
+          <div class="seg" role="radiogroup" aria-labelledby="h-mode-label">
+            <label class="radio"><input type="radio" name="h-mode" value="count" checked> Days a week</label>
+            <label class="radio"><input type="radio" name="h-mode" value="days"> Specific days</label>
+          </div></div>
+        <div class="field full" id="h-count-wrap"><label for="h-count">How many days</label>
+          <select id="h-count">${[7,6,5,4,3,2,1].map(i => `<option value="${i}">${i===7 ? 'Every day' : `${i} ${i===1?'day':'days'} a week, any days`}</option>`).join('')}</select>
+          <span class="hint">Any days count, so you choose your rest days as you go.</span></div>
+        <div class="field full" id="h-days-wrap" hidden><span class="flabel">Which days</span>
+          <div class="daypick">${DOW.map((d,i) => `<label class="daychk"><input type="checkbox" name="h-day" value="${i}"${[0,2,4].includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>
+          <span class="hint">Missing a chosen day shows as ✕. Other days are rest days.</span></div>
+        <div class="form-actions"><button type="button" class="btn btn-ghost" data-action="toggle-habit-form">Cancel</button><button type="submit" class="btn btn-gold">Add habit</button></div>
+      </div>
+    </form>`;
+  }
+  function renderHabits(){
+    const r = periodRange(P.period), act = activeHabits(), archived = HABITS.filter(h => h.archived);
+    const due = dueOn(TODAY), doneToday = due.filter(h => h.logs.has(TODAY)).length;
+    const hs = habitsSummary(r);
+    const best = act.filter(countsInDays).map(h => ({h, s:habitStreak(h)})).sort((a,b) => b.s.n-a.s.n)[0];
+    if(P.hmHabit!=='all' && !HABITS.some(h => h.id===P.hmHabit)) P.hmHabit = 'all';
+    const sel = P.hmHabit==='all' ? null : HABITS.find(h => h.id===P.hmHabit);
+    let info;
+    if(sel){
+      const mp = habitPeriod(sel, periodRange('month'));
+      info = `<div><div class="kpi-label">${esc(sel.name)} in ${parse(TODAY).toLocaleDateString('en-US',{month:'long'})}${sel.archived ? ' (archived)' : ''}</div><div class="kpi-val gold">${mp.done} <small>days done</small></div><div class="kpi-sub">${countsInDays(sel) ? `out of ${Math.round(mp.expected)} scheduled so far` : `target so far: about ${Math.round(mp.expected)} (${sel.freq} a week)`}</div></div>`;
+    } else {
+      let full = 0, days = 0;
+      for(const d of daysIn(periodRange('month'))){ if(d>=TODAY) break; const dd = dueOn(d); if(!dd.length) continue; days++; if(dd.every(h => h.logs.has(d))) full++; }
+      info = `<div><div class="kpi-label">Days with every habit done</div><div class="kpi-val gold">${full} <small>of ${days} days</small></div><div class="kpi-sub">the brightest squares</div></div>`;
+    }
+    return `
+    <div class="section kpi-grid three">
+      <div class="kpi"><div class="kpi-label">Done today</div><div class="kpi-val">${doneToday} <small>/ ${due.length}</small></div><div class="kpi-sub">tap today’s circle on a habit to check in</div></div>
+      <div class="kpi"><div class="kpi-label">Consistency</div><div class="kpi-val gold">${fmtPct(hs.rate)}</div><div class="kpi-sub">${P.period==='today' ? 'of today’s habits done' : 'average across habits, '+periodPhrase()}</div></div>
+      <div class="kpi"><div class="kpi-label">Longest day streak</div><div class="kpi-val green">${best ? best.s.n : '—'} <small>${best ? best.s.unit : ''}</small></div><div class="kpi-sub">${best ? esc(best.h.name) : 'no day-based habits yet'}</div></div>
+    </div>
+    <div class="section">
+      <div class="toolbar"><div><div class="section-title">Your habits</div><div class="section-sub">${act.length} active${archived.length ? ` · ${archived.length} archived` : ''}</div></div>
+        <button class="btn ${P.showHabitForm?'btn-ghost':'btn-gold'}" data-action="toggle-habit-form">${P.showHabitForm ? 'Close' : '+ Add habit'}</button></div>
+      ${P.showHabitForm ? habitForm() : ''}
+      <div class="habit-grid">${act.map(habitCard).join('') || '<div class="empty">No active habits yet. Add one to start your streak.</div>'}</div>
+    </div>
+    <div class="section card">
+      <div class="section-head"><div><div class="section-title">${monthName()}</div><div class="section-sub">Each square is a day. ${sel ? 'Gold means you did it.' : 'The brighter the gold, the more of that day’s habits you did.'}</div></div></div>
+      <div class="chips" role="group" aria-label="Heatmap habit" style="margin-bottom:16px">
+        <button class="chip${P.hmHabit==='all'?' active':''}" data-action="hm-habit" data-id="all">All active habits</button>
+        ${HABITS.map(h => `<button class="chip${P.hmHabit===h.id?' active':''}" data-action="hm-habit" data-id="${h.id}">${esc(h.name)}${h.archived ? ' <span class="count">archived</span>' : ''}</button>`).join('')}
+      </div>
+      <div class="hm-layout"><div>${heatmap(P.hmHabit)}</div>
+        <div class="hm-info">${info}<p class="hint">Missing a day doesn’t erase the month. The goal is showing up more often than not, and never missing twice in a row.</p></div>
+      </div>
+    </div>
+    ${archived.length ? `<div class="section card">
+      <div class="section-head"><div><div class="section-title">Archived habits</div><div class="section-sub">Hidden from today and from the scores. Their history stays on the heatmap.</div></div></div>
+      ${archived.map(h => `<div class="arch-row"><div><div class="arch-name">${esc(h.name)}</div><div class="hint">${esc(h.target)}${h.target ? ' · ' : ''}${freqText(h)} · ${h.logs.size} check-ins kept</div></div>
+        <div class="arch-actions"><button class="link" data-action="hm-habit" data-id="${h.id}">Show history</button><button class="link" data-action="restore-habit" data-id="${h.id}">Restore</button><button class="link" data-action="delete-habit" data-id="${h.id}">Delete for good</button></div></div>`).join('')}
+    </div>` : ''}`;
+  }
+
+  // ───────── body ─────────
+  function renderBody(){
+    const r = periodRange(P.period), ms = mealsSummary(r), n = eatenCount(TODAY);
+    const na = P.period==='today' ? {kcal:sumK(TODAY), protein:sumP(TODAY)} : nutritionAvg(r);
+    const weekMs = mealsSummary(periodRange('week'), true);
+    const skipLine = weekMs.sentence.replace(/^\d+ of \d+ planned meals eaten\.\s?/, '');
+    return `
+    <div class="section kpi-grid three">
+      <div class="kpi"><div class="kpi-label">Meals eaten</div><div class="kpi-val green">${fmtPct(ms.rate)}</div><div class="kpi-sub">${P.period==='today' ? `${n} of 3 today` : `${ms.eaten} of ${ms.planned} planned, ${periodPhrase()}`}</div></div>
+      <div class="kpi"><div class="kpi-label">${P.period==='today' ? 'Calories today' : 'Avg. calories a day'}</div><div class="kpi-val">${na ? fmtN(na.kcal) : '—'} <small>/ ${fmtN(kcalTarget())}</small></div><div class="kpi-sub">${P.period==='today' ? 'so far' : 'finished days only'}</div></div>
+      <div class="kpi"><div class="kpi-label">${P.period==='today' ? 'Protein today' : 'Avg. protein a day'}</div><div class="kpi-val blue">${na ? Math.round(na.protein)+' g' : '—'} <small>/ ${proteinTarget()} g</small></div><div class="kpi-sub">optional, only if you log it</div></div>
+    </div>
+    <div class="section grid-2">
+      <div class="card">
+        <div class="section-head"><div><div class="section-title">Today</div><div class="section-sub">Tap the circle to tick a meal. Tap the name to add details.</div></div></div>
+        <div class="bar-row" style="margin-bottom:16px"><div class="bar-top"><span>Meals completed</span><strong>${n} <small>/ 3</small></strong></div><div class="bar"><span style="width:${n/3*100}%;background:var(--green)"></span></div></div>
+        <div class="meals">${SLOTS.map(([k,l]) => mealRow(k,l,false)).join('')}</div>
+        ${nutritionBars()}
+        ${P.editTargets ? `<form class="targets-form" id="targets-form" autocomplete="off">
+            <div class="field"><label for="t-kcal">Calorie target</label><input id="t-kcal" type="number" min="500" step="50" value="${kcalTarget()}"></div>
+            <div class="field"><label for="t-protein">Protein target, g</label><input id="t-protein" type="number" min="10" step="5" value="${proteinTarget()}"></div>
+            <button type="button" class="btn btn-ghost" data-action="edit-targets">Cancel</button><button type="submit" class="btn btn-gold">Save targets</button>
+          </form>` : `<div style="margin-top:12px"><button class="link" data-action="edit-targets">Change daily targets</button></div>`}
+      </div>
+      <div class="card">
+        <div class="section-head"><div><div class="section-title">This week</div><div class="section-sub">Consistency, not perfection</div></div></div>
+        <div class="week-side">${mealWeek()}
+          <div><div class="kpi-label">Meals eaten this week</div><div class="kpi-val green">${fmtPct(weekMs.rate)}</div><div class="kpi-sub">${weekMs.eaten || 0} of ${weekMs.planned || 0}</div><p class="hint" style="margin-top:12px">${skipLine || (weekMs.planned ? 'No meals missed so far.' : 'Tick your first meal to start.')}</p></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ───────── render ─────────
+  const RENDER = {productivity:renderOverview, tasks:renderTasks, habits:renderHabits, body:renderBody};
+  function render(){
+    prep();
+    const el = document.getElementById('page-'+P.page);
+    if(!el || !el.classList.contains('active')) return;
+    el.innerHTML = RENDER[P.page]();
+    document.querySelectorAll('#prod-period button').forEach(b => { const on = b.dataset.period===P.period; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
+    const canvasId = {productivity:'prod-ov-month', tasks:'prod-tasks-month'}[P.page];
+    if(P.period==='month' && canvasId) drawMonthChart(canvasId);
+    else if(chart){ chart.destroy(); chart = null; }
+  }
+  function show(page){
+    P.page = page; P.openTask = null;
+    if(page!=='body'){ P.mealEdit = null; P.editTargets = false; }
+    render();
+  }
+
+  // ───────── saving (Supabase first, then local state, then re-render) ─────────
+  const rawTask = id => state.tasks.find(t => t.id===id);
+  const val = id => (document.getElementById(id)?.value ?? '');
+  function finishToast(t){
+    if(t.planned < TODAY) return `Done. Marked as a late completion for ${fmtDay(t.planned)}.`;
+    if(!t.deadline) return 'Done.';
+    const d = diffDays(t.deadline, TODAY);
+    return d>=0 ? `Done, on time${d>0 ? ` (${d}d early)` : ''}.` : `Done, ${-d}d after the deadline. It counts as late.`;
+  }
+  async function setStatus(id, s){
+    const raw = rawTask(id); if(!raw) return false;
+    const vm = vmTask(raw);
+    if(vm.status===s) return false;
+    const patch = {status:s, completed_at: s==='completed' ? new Date().toISOString() : null, done: s==='completed'};
+    const { error } = await db.from('tasks').update(patch).eq('id', id);
+    if(error){ toast('Error: '+error.message); return false; }
+    Object.assign(raw, patch);
+    toast(s==='completed' ? finishToast(vm) : `Marked ${STATUS[s].label.toLowerCase()}.`);
+    return true;
+  }
+  function selectorFor(el){
+    return ['action','id','page','period','filter','slot','status'].filter(a => el.dataset[a]!==undefined).map(a => `[data-${a}="${CSS.escape(el.dataset[a])}"]`).join('');
+  }
+
+  document.addEventListener('click', async e => {
+    const el = e.target.closest('[data-action]');
+    if(!el || !el.closest('.prod, #prod-period')) return;
+    TODAY = localISO(new Date());
+    const a = el.dataset.action, id = el.dataset.id && el.dataset.id!=='all' ? +el.dataset.id : null;
+    const sel = selectorFor(el), keyboard = e.detail===0;
+    let focusId = null;
+    switch(a){
+      case 'go': if(el.dataset.slot) P.mealEdit = el.dataset.slot; goTo(el.dataset.page); window.scrollTo({top:0}); return;
+      case 'period': P.period = el.dataset.period; break;
+      case 'open-task': P.openTask = P.openTask===id ? null : id; break;
+      case 'toggle-task': { const raw = rawTask(id); if(!raw) return; await setStatus(id, vmTask(raw).status==='completed' ? 'in_progress' : 'completed'); break; }
+      case 'set-status': await setStatus(id, el.dataset.status); break;
+      case 'delete-task': {
+        const { error } = await db.from('tasks').delete().eq('id', id);
+        if(error){ toast('Error: '+error.message); return; }
+        state.tasks = state.tasks.filter(t => t.id!==id); P.openTask = null; toast('Task deleted.');
+        break;
+      }
+      case 'filter': P.taskFilter = el.dataset.filter; P.openTask = null; break;
+      case 'toggle-add': P.showAdd = !P.showAdd; if(P.showAdd) focusId = 'f-name'; break;
+      case 'toggle-habit': {
+        const h = state.habits.find(x => x.id===id); if(!h) return;
+        const log = state.habit_logs.find(l => l.habit_id===id && l.date===TODAY);
+        if(log){
+          const { error } = await db.from('habit_logs').delete().eq('id', log.id);
+          if(error){ toast('Error: '+error.message); return; }
+          state.habit_logs = state.habit_logs.filter(l => l.id!==log.id); toast(`${h.name}: unchecked for today.`);
+        } else {
+          const { data, error } = await db.from('habit_logs').insert({user_id:currentUser.id, habit_id:id, date:TODAY}).select().single();
+          if(error){ toast('Error: '+error.message); return; }
+          state.habit_logs.push(data); toast(`${h.name}: done for today.`);
+        }
+        break;
+      }
+      case 'hm-habit': P.hmHabit = el.dataset.id==='all' ? 'all' : id; if(P.page!=='habits'){ goTo('habits'); return; } break;
+      case 'toggle-habit-form': P.showHabitForm = !P.showHabitForm; if(P.showHabitForm) focusId = 'h-name'; break;
+      case 'archive-habit': case 'restore-habit': {
+        const h = state.habits.find(x => x.id===id); if(!h) return;
+        const archived_at = a==='archive-habit' ? new Date().toISOString() : null;
+        const { error } = await db.from('habits').update({archived_at}).eq('id', id);
+        if(error){ toast('Error: '+error.message); return; }
+        h.archived_at = archived_at;
+        toast(archived_at ? `${h.name} archived. Its history is kept.` : `${h.name} restored.`);
+        break;
+      }
+      case 'delete-habit': {
+        const h = state.habits.find(x => x.id===id); if(!h) return;
+        if(!confirm(`Delete "${h.name}" and all of its check-ins for good? This can't be undone.`)) return;
+        const { error } = await db.from('habits').delete().eq('id', id);
+        if(error){ toast('Error: '+error.message); return; }
+        state.habits = state.habits.filter(x => x.id!==id);
+        state.habit_logs = state.habit_logs.filter(l => l.habit_id!==id);
+        if(P.hmHabit===id) P.hmHabit = 'all';
+        toast(`${h.name} deleted.`);
+        break;
+      }
+      case 'toggle-meal': {
+        const k = el.dataset.slot;
+        const m = state.meals.find(x => x.date===TODAY && x.slot===k);
+        if(m){
+          const { error } = await db.from('meals').delete().eq('id', m.id);
+          if(error){ toast('Error: '+error.message); return; }
+          state.meals = state.meals.filter(x => x.id!==m.id);
+          if(P.mealEdit===k) P.mealEdit = null;
+          toast(`${slotName(k)} unticked.`);
+        } else {
+          const { data, error } = await db.from('meals').insert({user_id:currentUser.id, date:TODAY, slot:k}).select().single();
+          if(error){ toast('Error: '+error.message); return; }
+          state.meals.push(data); toast(`${slotName(k)} ticked.`);
+        }
+        break;
+      }
+      case 'edit-meal': P.mealEdit = P.mealEdit===el.dataset.slot ? null : el.dataset.slot; if(P.mealEdit) focusId = 'm-name'; break;
+      case 'close-meal': P.mealEdit = null; break;
+      case 'edit-targets': P.editTargets = !P.editTargets; if(P.editTargets) focusId = 't-kcal'; break;
+      default: return;
+    }
+    render();
+    if(focusId) document.getElementById(focusId)?.focus();
+    else if(keyboard) document.querySelector(sel)?.focus({preventScroll:true});
+  });
+
+  document.addEventListener('keydown', e => {
+    if((e.key==='Enter' || e.key===' ') && e.target.matches('.prod [role="button"][data-action]')){ e.preventDefault(); e.target.click(); }
+  });
+  document.addEventListener('change', e => {
+    if(e.target.name!=='h-mode' || !e.target.closest('.prod')) return;
+    const days = e.target.value==='days';
+    document.getElementById('h-days-wrap').hidden = !days;
+    document.getElementById('h-count-wrap').hidden = days;
+  });
+  document.addEventListener('submit', async e => {
+    if(!e.target.closest('.prod')) return;
+    e.preventDefault();
+    TODAY = localISO(new Date());
+    const form = e.target, btn = form.querySelector('[type="submit"]');
+    const fail = msg => { toast(msg); if(btn) btn.disabled = false; };
+    if(btn) btn.disabled = true;
+
+    if(form.id==='add-form'){
+      const name = val('f-name').trim();
+      if(!name){ fail('Give the task a name first.'); document.getElementById('f-name')?.focus(); return; }
+      const row = {user_id:currentUser.id, name, notes:val('f-notes').trim() || null, planned_for:val('f-planned') || TODAY,
+        deadline:val('f-deadline') || null, priority:val('f-priority') || null, category:val('f-category') || 'Other',
+        estimate_min:+val('f-estimate') || null, status:'not_started', done:false};
+      const { data, error } = await db.from('tasks').insert(row).select().single();
+      if(error) return fail('Error: '+error.message);
+      state.tasks.unshift(data);
+      P.showAdd = false;
+      P.taskFilter = data.planned_for===TODAY ? 'today' : data.planned_for>TODAY ? 'upcoming' : 'open';
+      P.openTask = data.id;
+      toast('Task added.');
+    } else if(form.id==='habit-form'){
+      const name = val('h-name').trim();
+      if(!name){ fail('Give the habit a name first.'); document.getElementById('h-name')?.focus(); return; }
+      const mode = form.querySelector('input[name="h-mode"]:checked')?.value;
+      const row = {user_id:currentUser.id, name, target:val('h-target').trim() || null, color:'#c9a84c', per_week:null, weekdays:null};
+      if(mode==='days'){
+        const days = [...form.querySelectorAll('input[name="h-day"]:checked')].map(x => +x.value);
+        if(!days.length) return fail('Pick at least one day.');
+        row.weekdays = days;
+      } else row.per_week = +val('h-count') || 7;
+      const { data, error } = await db.from('habits').insert(row).select().single();
+      if(error) return fail('Error: '+error.message);
+      state.habits.push(data);
+      P.showHabitForm = false;
+      toast(`${name} added. Its streak and consistency start from today.`);
+    } else if(form.id==='meal-form'){
+      const k = form.dataset.slot;
+      const row = {user_id:currentUser.id, date:TODAY, slot:k, name:val('m-name').trim() || null,
+        calories:+val('m-kcal') || null, protein:+val('m-protein') || null, notes:val('m-notes').trim() || null};
+      const { data, error } = await db.from('meals').upsert(row, {onConflict:'user_id,date,slot'}).select().single();
+      if(error) return fail('Error: '+error.message);
+      state.meals = state.meals.filter(m => !(m.date===TODAY && m.slot===k));
+      state.meals.push(data);
+      P.mealEdit = null;
+      toast(`${slotName(k)} saved.`);
+    } else if(form.id==='targets-form'){
+      const calorie_target = Math.round(+val('t-kcal')), protein_target = Math.round(+val('t-protein'));
+      if(!(calorie_target>0) || !(protein_target>0)) return fail('Enter both targets as numbers.');
+      const { data, error } = await db.from('user_settings').upsert({user_id:currentUser.id, calorie_target, protein_target, updated_at:new Date().toISOString()}, {onConflict:'user_id'}).select().single();
+      if(error) return fail('Error: '+error.message);
+      state.settings = data;
+      P.editTargets = false;
+      toast('Daily targets saved.');
+    } else return;
+    render();
+  });
+
+  return { show, isPage: page => page in TITLES, title: page => TITLES[page] };
+})();
 
 // ════════════════════════════════
 //   REPORT CARD

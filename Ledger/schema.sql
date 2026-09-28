@@ -108,8 +108,13 @@ create table tasks (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null,
+  notes text,
+  status text not null default 'not_started' check (status in ('not_started','in_progress','completed')),
+  planned_for date not null default current_date,
   deadline date,
-  priority text not null default 'Medium',
+  priority text,
+  category text not null default 'Other',
+  estimate_min int,
   done boolean not null default false,
   completed_at timestamptz,
   created_at timestamptz not null default now()
@@ -119,7 +124,11 @@ create table habits (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null,
-  color text not null,
+  target text,
+  per_week int check (per_week between 1 and 7),
+  weekdays int[],
+  color text not null default '#c9a84c',
+  archived_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -130,6 +139,26 @@ create table habit_logs (
   date date not null,
   created_at timestamptz not null default now(),
   unique (habit_id, date)
+);
+
+create table meals (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null,
+  slot text not null check (slot in ('breakfast','lunch','dinner')),
+  name text,
+  calories int,
+  protein int,
+  notes text,
+  created_at timestamptz not null default now(),
+  unique (user_id, date, slot)
+);
+
+create table user_settings (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  calorie_target int not null default 2500,
+  protein_target int not null default 120,
+  updated_at timestamptz not null default now()
 );
 
 -- Row Level Security: every table is owner-only via auth.uid() = user_id.
@@ -146,6 +175,8 @@ alter table notes       enable row level security;
 alter table tasks       enable row level security;
 alter table habits      enable row level security;
 alter table habit_logs  enable row level security;
+alter table meals       enable row level security;
+alter table user_settings enable row level security;
 
 create policy "Owner access" on income      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on expenses    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -160,3 +191,5 @@ create policy "Owner access" on notes       for all using (auth.uid() = user_id)
 create policy "Owner access" on tasks       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on habits      for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Owner access" on habit_logs  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Owner access" on meals       for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Owner access" on user_settings for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
