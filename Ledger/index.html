@@ -377,6 +377,25 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .pseg button.active{background:var(--bg4);color:var(--gold);}
 
 
+/* ── IMPORT DIALOG ── */
+.modal-backdrop { position:fixed; inset:0; background:rgba(13,13,15,0.78); display:none; align-items:center; justify-content:center; z-index:1600; padding:20px; }
+.modal-backdrop.show { display:flex; }
+.modal { width:100%; max-width:460px; max-height:calc(100vh - 40px); overflow-y:auto; background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+.modal-title { font-family:var(--font-serif); font-size:20px; font-weight:400; color:var(--gold); }
+.modal-sub { font-size:12px; color:var(--text3); margin-top:4px; word-break:break-all; }
+.import-counts { display:grid; grid-template-columns:1fr 1fr; gap:6px 20px; margin:18px 0; padding:14px 16px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); }
+.import-counts div { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--text2); }
+.import-counts strong { color:var(--text); font-weight:500; font-variant-numeric:tabular-nums; }
+.import-options { display:flex; flex-direction:column; gap:10px; }
+.import-opt { display:flex; flex-direction:column; gap:4px; text-align:left; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-sm); padding:14px 16px; cursor:pointer; font-family:var(--font); color:var(--text2); font-size:12.5px; line-height:1.6; transition:border-color 0.15s; }
+.import-opt strong { color:var(--text); font-size:14px; font-weight:500; }
+.import-opt:hover, .import-opt:focus-visible { border-color:var(--gold); outline:none; }
+.import-opt.danger:hover, .import-opt.danger:focus-visible { border-color:var(--red); }
+.import-opt.danger strong { color:var(--red); }
+.modal-note { font-size:11.5px; color:var(--text3); margin-top:14px; line-height:1.6; }
+.modal-actions { display:flex; justify-content:flex-end; margin-top:16px; }
+@media(max-width:480px){ .import-counts { grid-template-columns:1fr; } }
+
 /* ── OTHER COMPONENTS ── */
 .ai-output { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-top:16px; min-height:80px; font-size:13.5px; line-height:1.75; color:var(--text2); }
 .ai-output.loading { display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -514,8 +533,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
         <button class="btn-signout" onclick="signOut()">Sign out</button>
       </div>
       <div class="sidebar-export">
-        <button onclick="exportData()">↓ Export</button>
-        <button onclick="document.getElementById('import-file').click()">↑ Import</button>
+        <button onclick="exportData()" title="Download all your data as one backup file">↓ Export</button>
+        <button onclick="document.getElementById('import-file').click()" title="Load data from a Ledger backup file">↑ Import</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
       </div>
     </div>
@@ -821,6 +840,21 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
     </div><!-- /content -->
   </main>
 </div><!-- /app -->
+
+<!-- ════ IMPORT DIALOG ════ -->
+<div class="modal-backdrop" id="import-modal" onclick="if(event.target===this) closeImport()" onkeydown="if(event.key==='Escape') closeImport()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
+    <div class="modal-title" id="import-title">Import data</div>
+    <div class="modal-sub" id="import-file-info"></div>
+    <div class="import-counts" id="import-counts"></div>
+    <div class="import-options">
+      <button class="import-opt" onclick="confirmImport('merge')"><strong>Add to my data</strong><span>Keeps everything you have and adds what’s new from the file. Records already in your account are skipped, so importing the same file twice is safe.</span></button>
+      <button class="import-opt danger" onclick="confirmImport('replace')"><strong>Replace my data</strong><span>Clears your current data and loads this file instead. A backup of your current data downloads first.</span></button>
+    </div>
+    <p class="modal-note">Budgets, journal notes and calorie targets from the file replace yours in both cases, because there’s only one per category, month or account.</p>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeImport()">Cancel</button></div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -2309,36 +2343,220 @@ function renderNotes() {
 // ════════════════════════════════
 //   EXPORT / IMPORT
 // ════════════════════════════════
-function exportData() {
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`ledger-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
-  toast('Data exported ↓');
+// A backup is one JSON file: {app, version, exported_at, counts, data:{table: rows}}.
+// Rows keep their original ids so habit check-ins can be re-linked to their habits on import.
+const BACKUP_VERSION = 2;
+const BACKUP_TABLES = {
+  income:      ['name','amount','category','date','note','created_at'],
+  expenses:    ['name','amount','category','date','note','created_at'],
+  goals:       ['name','target','saved','target_date','created_at'],
+  recurring:   ['name','amount','category','day','note','created_at'],
+  upcoming:    ['name','amount','category','date','note','created_at'],
+  assets:      ['name','val','cat','created_at'],
+  liabilities: ['name','val','cat','created_at'],
+  debts:       ['name','total','paid','monthly','due','note','created_at'],
+  tasks:       ['name','notes','status','planned_for','deadline','priority','category','estimate_min','done','completed_at','created_at'],
+  habits:      ['name','target','per_week','weekdays','color','archived_at','created_at'],
+  habit_logs:  ['habit_id','date','created_at'],
+  meals:       ['date','slot','name','calories','protein','notes','created_at'],
+};
+const BACKUP_LABELS = {income:'Income', expenses:'Expenses', goals:'Savings goals', budgets:'Budgets', recurring:'Recurring', upcoming:'Upcoming',
+  assets:'Assets', liabilities:'Liabilities', debts:'Debts', notes:'Journal notes', tasks:'Tasks', habits:'Habits', habit_logs:'Habit check-ins', meals:'Meals'};
+// how to recognise a record that's already in your account when adding (not replacing)
+const BACKUP_KEYS = {
+  income:      r => [r.name, +r.amount, r.date, r.category].join('|'),
+  expenses:    r => [r.name, +r.amount, r.date, r.category].join('|'),
+  goals:       r => [r.name, +r.target].join('|'),
+  recurring:   r => [r.name, +r.amount, r.day].join('|'),
+  upcoming:    r => [r.name, +r.amount, r.date].join('|'),
+  assets:      r => [r.name, +r.val, r.cat].join('|'),
+  liabilities: r => [r.name, +r.val, r.cat].join('|'),
+  debts:       r => [r.name, +r.total].join('|'),
+  tasks:       r => [r.name, r.planned_for, r.created_at || ''].join('|'),
+  meals:       r => [r.date, r.slot].join('|'),
+};
+let pendingImport = null;
+
+function pick(row, cols){ const o = {}; cols.forEach(c => { if(row[c]!==undefined) o[c] = row[c]; }); return o; }
+
+function buildBackup(){
+  const data = {};
+  for(const [t, cols] of Object.entries(BACKUP_TABLES)) data[t] = (state[t] || []).map(r => ({id:r.id, ...pick(r, cols)}));
+  data.budgets = Object.entries(state.budgets).map(([category, amount]) => ({category, amount}));
+  data.notes = Object.entries(state.notes).map(([month, text]) => ({month, text}));
+  data.settings = state.settings ? {calorie_target:state.settings.calorie_target, protein_target:state.settings.protein_target} : null;
+  const counts = {};
+  Object.keys(BACKUP_LABELS).forEach(t => { counts[t] = data[t].length; });
+  return {app:'Ledger', version:BACKUP_VERSION, exported_at:new Date().toISOString(), counts, data};
 }
 
-async function importData(e) {
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=async ev => {
-    try {
-      const d=JSON.parse(ev.target.result);
-      showLoading('Importing data...');
-      const uid=currentUser.id;
-      const ops=[];
-      if(d.income?.length)      ops.push(db.from('income').insert(d.income.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.expenses?.length)    ops.push(db.from('expenses').insert(d.expenses.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.goals?.length)       ops.push(db.from('goals').insert(d.goals.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.recurring?.length)   ops.push(db.from('recurring').insert(d.recurring.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.upcoming?.length)    ops.push(db.from('upcoming').insert(d.upcoming.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.assets?.length)      ops.push(db.from('assets').insert(d.assets.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.liabilities?.length) ops.push(db.from('liabilities').insert(d.liabilities.map(r=>({...r,id:undefined,user_id:uid}))));
-      if(d.debts?.length)       ops.push(db.from('debts').insert(d.debts.map(r=>({...r,id:undefined,user_id:uid}))));
-      await Promise.all(ops);
-      await loadAllData();
-      hideLoading(); buildMonthFilter(); renderAll(); toast('Data imported ↑');
-    } catch(err) { hideLoading(); toast('Import failed: '+err.message); }
+function downloadJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function exportData(){
+  const b = buildBackup();
+  downloadJSON(b, `ledger-backup-${localISO(new Date())}.json`);
+  const total = Object.values(b.counts).reduce((a,n) => a+n, 0);
+  toast(`Exported ${total.toLocaleString()} records ↓`);
+}
+
+// Accepts this version's backups and the older "whole state" exports.
+function normalizeBackup(raw){
+  const notLedger = new Error('This file isn’t a Ledger backup.');
+  if(!raw || typeof raw!=='object') throw notLedger;
+  const src = raw.app==='Ledger' && raw.data ? raw.data : raw;
+  if(!Object.keys(BACKUP_LABELS).some(k => k in src)) throw notLedger;
+  const out = {};
+  for(const [t, cols] of Object.entries(BACKUP_TABLES)){
+    out[t] = (Array.isArray(src[t]) ? src[t] : []).filter(r => r && typeof r==='object').map(r => ({_id:r.id, ...pick(r, cols)}));
+  }
+  const today = localISO(new Date());
+  out.tasks = out.tasks.filter(r => r.name).map(r => {
+    const status = ['not_started','in_progress','completed'].includes(r.status) ? r.status : (r.done ? 'completed' : 'not_started');
+    return {...r, status, done: status==='completed', category: r.category || 'Other',
+      planned_for: r.planned_for || (r.created_at ? localISO(new Date(r.created_at)) : today)};
+  });
+  out.habits = out.habits.filter(r => r.name).map(r => ({...r, color: r.color || '#c9a84c'}));
+  out.habit_logs = out.habit_logs.filter(r => r.habit_id!==undefined && r.date);
+  out.meals = out.meals.filter(r => r.date && ['breakfast','lunch','dinner'].includes(r.slot));
+  ['income','expenses','goals','recurring','upcoming','assets','liabilities','debts'].forEach(t => { out[t] = out[t].filter(r => r.name); });
+  const b = src.budgets, n = src.notes;
+  out.budgets = (Array.isArray(b) ? b : Object.entries(b || {}).map(([category, amount]) => ({category, amount})))
+    .filter(x => x && x.category && +x.amount > 0).map(x => ({category:x.category, amount:+x.amount}));
+  out.notes = (Array.isArray(n) ? n : Object.entries(n || {}).map(([month, text]) => ({month, text})))
+    .filter(x => x && x.month && x.text).map(x => ({month:x.month, text:x.text}));
+  const s = src.settings || (Array.isArray(src.user_settings) ? src.user_settings[0] : src.user_settings);
+  out.settings = s && +s.calorie_target > 0 ? {calorie_target:+s.calorie_target, protein_target:+s.protein_target || 120} : null;
+  return out;
+}
+
+function importData(e){
+  const file = e.target.files[0]; e.target.value = '';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    let raw, data;
+    try { raw = JSON.parse(ev.target.result); data = normalizeBackup(raw); }
+    catch(err){ toast(err instanceof SyntaxError ? 'That file couldn’t be read as JSON.' : err.message); return; }
+    const total = Object.keys(BACKUP_LABELS).reduce((a,t) => a + data[t].length, 0);
+    if(!total && !data.settings){ toast('That backup is empty.'); return; }
+    pendingImport = data;
+    const when = raw.exported_at ? ` · exported ${new Date(raw.exported_at).toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'})}` : ' · older backup format';
+    document.getElementById('import-file-info').textContent = `${file.name}${when}`;
+    document.getElementById('import-counts').innerHTML = Object.keys(BACKUP_LABELS).filter(t => data[t].length)
+      .map(t => `<div><span>${BACKUP_LABELS[t]}</span><strong>${data[t].length.toLocaleString()}</strong></div>`).join('')
+      + (data.settings ? `<div><span>Calorie &amp; protein targets</span><strong>✓</strong></div>` : '');
+    document.getElementById('import-modal').classList.add('show');
+    document.querySelector('#import-modal .import-opt')?.focus();
   };
-  reader.readAsText(file); e.target.value='';
+  reader.readAsText(file);
+}
+
+function closeImport(){ pendingImport = null; document.getElementById('import-modal').classList.remove('show'); }
+
+async function confirmImport(mode){
+  const data = pendingImport; if(!data) return;
+  if(mode==='replace' && !confirm('Replace everything in your account with this file? A backup of your current data will download first.')) return;
+  closeImport();
+  try {
+    const stats = await runImport(data, mode);
+    toast(`Imported ${stats.added.toLocaleString()} records${stats.skipped ? ` · ${stats.skipped.toLocaleString()} already there, skipped` : ''} ↑`);
+  } catch(err){
+    toast('Import stopped: ' + err.message);
+  }
+  showLoading('Refreshing...');
+  await loadAllData();
+  hideLoading();
+  refreshAfterImport();
+}
+
+async function runImport(data, mode){
+  const uid = currentUser.id, merge = mode==='merge';
+  const stats = {added:0, skipped:0};
+  const fail = (what, error) => { throw new Error(`${what}: ${error.message}`); };
+  const insertAll = async (table, rows) => {
+    for(let i=0; i<rows.length; i+=500){
+      const { error } = await db.from(table).insert(rows.slice(i, i+500));
+      if(error) fail(BACKUP_LABELS[table], error);
+    }
+    stats.added += rows.length;
+  };
+
+  if(!merge){
+    downloadJSON(buildBackup(), `ledger-before-import-${localISO(new Date())}.json`);
+    showLoading('Clearing current data...');
+    for(const t of ['habit_logs','habits','meals','tasks','income','expenses','goals','budgets','recurring','upcoming','assets','liabilities','debts','notes']){
+      const { error } = await db.from(t).delete().eq('user_id', uid);
+      if(error) fail(`Clearing ${BACKUP_LABELS[t].toLowerCase()}`, error);
+    }
+  }
+
+  for(const t of ['income','expenses','goals','recurring','upcoming','assets','liabilities','debts','tasks','meals']){
+    if(!data[t].length) continue;
+    showLoading(`Importing ${BACKUP_LABELS[t].toLowerCase()}...`);
+    const have = new Set(merge ? (state[t] || []).map(BACKUP_KEYS[t]) : []);
+    const unique = t==='meals';
+    const rows = [];
+    for(const {_id, ...r} of data[t]){
+      const k = BACKUP_KEYS[t](r);
+      if(have.has(k)){ stats.skipped++; continue; }
+      if(unique) have.add(k);
+      rows.push({...r, user_id:uid});
+    }
+    await insertAll(t, rows);
+  }
+
+  if(data.habits.length){
+    showLoading('Importing habits...');
+    const idMap = new Map();
+    const byName = new Map(merge ? state.habits.map(h => [String(h.name).trim().toLowerCase(), h.id]) : []);
+    for(const {_id, ...r} of data.habits){
+      const key = String(r.name).trim().toLowerCase();
+      if(byName.has(key)){ idMap.set(_id, byName.get(key)); stats.skipped++; continue; }
+      const { data: row, error } = await db.from('habits').insert({...r, user_id:uid}).select().single();
+      if(error) fail('Habits', error);
+      idMap.set(_id, row.id); byName.set(key, row.id); stats.added++;
+    }
+    const have = new Set(merge ? state.habit_logs.map(l => `${l.habit_id}|${l.date}`) : []);
+    const logs = [];
+    for(const l of data.habit_logs){
+      const hid = idMap.get(l.habit_id); if(hid===undefined) continue;
+      const k = `${hid}|${l.date}`;
+      if(have.has(k)){ stats.skipped++; continue; }
+      have.add(k);
+      logs.push({habit_id:hid, date:l.date, created_at:l.created_at, user_id:uid});
+    }
+    showLoading('Importing habit check-ins...');
+    await insertAll('habit_logs', logs);
+  }
+
+  // one value per category / month / account: the file's value wins
+  if(data.budgets.length){
+    const { error } = await db.from('budgets').upsert(data.budgets.map(b => ({...b, user_id:uid})), {onConflict:'user_id,category'});
+    if(error) fail('Budgets', error);
+    stats.added += merge ? data.budgets.filter(b => state.budgets[b.category]!==b.amount).length : data.budgets.length;
+  }
+  if(data.notes.length){
+    const { error } = await db.from('notes').upsert(data.notes.map(n => ({...n, user_id:uid})), {onConflict:'user_id,month'});
+    if(error) fail('Journal notes', error);
+    stats.added += merge ? data.notes.filter(n => state.notes[n.month]!==n.text).length : data.notes.length;
+  }
+  if(data.settings){
+    const { error } = await db.from('user_settings').upsert({...data.settings, user_id:uid, updated_at:new Date().toISOString()}, {onConflict:'user_id'});
+    if(error) fail('Targets', error);
+  }
+  return stats;
+}
+
+function refreshAfterImport(){
+  buildMonthFilter(); buildBudgetInputs(); buildReportMonths(); renderAll();
+  const active = document.querySelector('.page.active')?.id.replace('page-','');
+  if(active) goTo(active);
 }
 
 // ════════════════════════════════
