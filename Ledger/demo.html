@@ -343,6 +343,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .tx-amount.income{color:var(--green);} .tx-amount.expense{color:var(--red);}
 .tx-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:14px; padding:2px 6px; border-radius:4px; }
 .tx-del:hover { color:var(--red); background:var(--red-dim); }
+.list-more { width:100%; background:none; border:1px dashed var(--border2); color:var(--text2); border-radius:var(--radius-sm); padding:10px; font-size:12px; font-family:var(--font); cursor:pointer; transition:all 0.15s; }
+.list-more:hover { color:var(--gold); border-color:var(--gold); }
 
 /* ── GOALS / DEBTS ── */
 .goal-item,.debt-item { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; }
@@ -2824,10 +2826,17 @@ function renderAll() {
   renderBudget();
 }
 
+const LIST_LIMIT = 30;
+const expandedLists = new Set();
+function showAllEntries(elId) { expandedLists.add(elId); renderAll(); }
 function renderList(elId,items,forcedType,showType=false) {
   const el=document.getElementById(elId);
   if(!items.length) { el.innerHTML='<div class="empty"><div class="big">'+(forcedType==='income'?'↑':forcedType==='expense'?'↓':'◈')+'</div>Nothing here yet.</div>'; return; }
-  el.innerHTML=[...items].slice(0,30).map(t=>{
+  const shown = showType || expandedLists.has(elId) ? items : items.slice(0, LIST_LIMIT);
+  const more = items.length > shown.length
+    ? `<button class="list-more" onclick="showAllEntries('${elId}')">Showing the newest ${shown.length} of ${items.length} · Show all ${items.length} entries</button>`
+    : '';
+  el.innerHTML=shown.map(t=>{
     const type=forcedType||t.type;
     const sign=type==='income'?'+':'-';
     const dateStr=t.date?new Date(t.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
@@ -2837,7 +2846,7 @@ function renderList(elId,items,forcedType,showType=false) {
       <div class="tx-amount ${type}">${sign}PKR ${fmt(t.amount)}</div>
       ${!showType?`<button class="tx-del" onclick="deleteTx('${type}',${t.id})">✕</button>`:''}
     </div>`;
-  }).join('');
+  }).join('') + more;
 }
 
 // ════════════════════════════════
